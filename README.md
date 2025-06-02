@@ -1,0 +1,2 @@
+# ExifGui
+Mass exif modification

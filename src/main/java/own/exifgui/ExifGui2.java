@@ -24,7 +24,15 @@ import java.awt.Graphics;
 import java.awt.Color;
 import java.awt.image.BufferStrategy; 
 import java.awt.image.BufferedImage;
+import java.util.ArrayList;
 import javax.imageio.ImageIO;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+import org.apache.commons.imaging.common.ImageMetadata;
+import org.apache.commons.imaging.common.ImageMetadata.ImageMetadataItem;
+
+import org.apache.commons.imaging.formats.tiff.TiffField;
 
 /**
  *
@@ -44,6 +52,7 @@ public class ExifGui2 extends javax.swing.JFrame {
         this.height = this.Canvas4Image.getHeight();
         this.width = this.Canvas4Image.getWidth();
         this.selectedImageIndex = -1;
+        this.currentMetaData = new ArrayList();
     }
 
     /**
@@ -68,7 +77,7 @@ public class ExifGui2 extends javax.swing.JFrame {
         Frame4Image = new javax.swing.JInternalFrame();
         Canvas4Image = new java.awt.Canvas();
         jScrollPane3 = new javax.swing.JScrollPane();
-        jList1 = new javax.swing.JList<>();
+        ImageExifsjList = new javax.swing.JList<>();
         jButtonAddNewPlace1 = new javax.swing.JButton();
         jButtonSavePlacesLIst1 = new javax.swing.JButton();
         jLabel1 = new javax.swing.JLabel();
@@ -155,19 +164,28 @@ public class ExifGui2 extends javax.swing.JFrame {
         Frame4Image.setVisible(true);
 
         Canvas4Image.setPreferredSize(new java.awt.Dimension(110, 110));
+        Canvas4Image.addComponentListener(new java.awt.event.ComponentAdapter() {
+            public void componentResized(java.awt.event.ComponentEvent evt) {
+                Canvas4ImageComponentResized(evt);
+            }
+        });
 
         javax.swing.GroupLayout Frame4ImageLayout = new javax.swing.GroupLayout(Frame4Image.getContentPane());
         Frame4Image.getContentPane().setLayout(Frame4ImageLayout);
         Frame4ImageLayout.setHorizontalGroup(
             Frame4ImageLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(Canvas4Image, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 1138, Short.MAX_VALUE)
+            .addGroup(Frame4ImageLayout.createSequentialGroup()
+                .addComponent(Canvas4Image, javax.swing.GroupLayout.PREFERRED_SIZE, 963, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(0, 0, Short.MAX_VALUE))
         );
         Frame4ImageLayout.setVerticalGroup(
             Frame4ImageLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(Canvas4Image, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 634, Short.MAX_VALUE)
+            .addGroup(Frame4ImageLayout.createSequentialGroup()
+                .addComponent(Canvas4Image, javax.swing.GroupLayout.PREFERRED_SIZE, 642, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(0, 0, Short.MAX_VALUE))
         );
 
-        jScrollPane3.setViewportView(jList1);
+        jScrollPane3.setViewportView(ImageExifsjList);
 
         jButtonAddNewPlace1.setText("Add new Metadata");
         jButtonAddNewPlace1.addActionListener(new java.awt.event.ActionListener() {
@@ -224,6 +242,12 @@ public class ExifGui2 extends javax.swing.JFrame {
             }
         });
 
+        jMenuBar1.addComponentListener(new java.awt.event.ComponentAdapter() {
+            public void componentResized(java.awt.event.ComponentEvent evt) {
+                jMenuBar1ComponentResized(evt);
+            }
+        });
+
         jMenu1.setText("File");
         jMenu1.addMenuListener(new javax.swing.event.MenuListener() {
             public void menuCanceled(javax.swing.event.MenuEvent evt) {
@@ -266,32 +290,33 @@ public class ExifGui2 extends javax.swing.JFrame {
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(layout.createSequentialGroup()
-                        .addContainerGap()
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
+                        .addGap(15, 15, 15)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 161, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 634, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jButton1)))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(15, 15, 15)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                             .addGroup(layout.createSequentialGroup()
-                                .addGap(9, 9, 9)
-                                .addComponent(jButton1))))
-                    .addGroup(layout.createSequentialGroup()
-                        .addGap(43, 43, 43)
-                        .addComponent(jButton2)))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                    .addGroup(layout.createSequentialGroup()
-                        .addGap(7, 7, 7)
-                        .addComponent(jButtonAppendPlaceToSelected2)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jButtonAppendPlaceToSelected1)
-                        .addGap(233, 233, 233)
-                        .addComponent(jButtonAppendPlaceToSelected)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(jButtonSaveTheTaggedImages))
-                    .addComponent(Frame4Image, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                .addComponent(jButton2)
+                                .addGap(321, 321, 321)
+                                .addComponent(jButtonAppendPlaceToSelected2)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(jButtonAppendPlaceToSelected1)
+                                .addGap(233, 233, 233)
+                                .addComponent(jButtonAppendPlaceToSelected)
+                                .addGap(385, 385, 385)
+                                .addComponent(jButtonSaveTheTaggedImages))
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(jScrollPane4, javax.swing.GroupLayout.PREFERRED_SIZE, 636, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGap(2, 2, 2)
+                                .addComponent(Frame4Image, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGap(2, 2, 2)))))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 245, Short.MAX_VALUE)
+                    .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 371, Short.MAX_VALUE)
                     .addComponent(jScrollPane3)
                     .addGroup(layout.createSequentialGroup()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -301,17 +326,12 @@ public class ExifGui2 extends javax.swing.JFrame {
                                 .addComponent(jButtonSavePlacesLIst1))
                             .addComponent(jLabel1)
                             .addComponent(jLabel2))
-                        .addGap(0, 4, Short.MAX_VALUE))
+                        .addGap(0, 0, Short.MAX_VALUE))
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(jButtonAddNewPlace)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addComponent(jButtonSavePlacesLIst)))
                 .addContainerGap())
-            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                .addGroup(layout.createSequentialGroup()
-                    .addGap(10, 10, 10)
-                    .addComponent(jScrollPane4, javax.swing.GroupLayout.PREFERRED_SIZE, 161, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addContainerGap(1409, Short.MAX_VALUE)))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -345,20 +365,17 @@ public class ExifGui2 extends javax.swing.JFrame {
                             .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                                 .addComponent(jButtonAppendPlaceToSelected1)
                                 .addComponent(jButtonAppendPlaceToSelected2)))
-                        .addContainerGap(16, Short.MAX_VALUE))
+                        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                     .addGroup(layout.createSequentialGroup()
                         .addGap(0, 0, Short.MAX_VALUE)
+                        .addComponent(jScrollPane4, javax.swing.GroupLayout.PREFERRED_SIZE, 310, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(jButton2)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 310, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(18, 18, 18)
                         .addComponent(jButton1)
                         .addGap(17, 17, 17))))
-            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                .addGroup(layout.createSequentialGroup()
-                    .addGap(10, 10, 10)
-                    .addComponent(jScrollPane4, javax.swing.GroupLayout.PREFERRED_SIZE, 310, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addContainerGap(409, Short.MAX_VALUE)))
         );
 
         pack();
@@ -409,7 +426,6 @@ public class ExifGui2 extends javax.swing.JFrame {
             File file = fileChooser.getSelectedFile();
             // What to do with the file, e.g. display it in a TextArea
             //textarea.read( new FileReader( file.getAbsolutePath() ), null );
-            System.out.println(file.getAbsolutePath());
             absolute_path = file.getAbsolutePath();
             Set<String> fileSet = new HashSet<>();
             String[] splitted_filename;
@@ -424,11 +440,9 @@ public class ExifGui2 extends javax.swing.JFrame {
                             splitted_filename = path.getFileName().toString().split("\\.");                            
                             if (splitted_filename.length == 2) {
                                 ext = splitted_filename[1].trim();
-                                System.out.println(ext);
                                 if (ext.compareToIgnoreCase("jpg") == 0 || ext.compareToIgnoreCase("jpeg") == 0) {
                                     full_filepath = Path.of(absolute_path, path.getFileName().toString()).toString();
                                     fileSet.add(full_filepath);
-                                    System.out.println(full_filepath);
                                     fileVector.add(full_filepath);
                                 }
                             }
@@ -444,12 +458,10 @@ public class ExifGui2 extends javax.swing.JFrame {
     }//GEN-LAST:event_jMenuItem1ActionPerformed
 
     private void ExitjButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ExitjButtonActionPerformed
-        // TODO add your handling code here:
         System.exit(0);
     }//GEN-LAST:event_ExitjButtonActionPerformed
 
     private void CanceljButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_CanceljButtonActionPerformed
-        // TODO add your handling code here:
         ExitDialog.setVisible(false);
     }//GEN-LAST:event_CanceljButtonActionPerformed
 
@@ -479,19 +491,29 @@ public class ExifGui2 extends javax.swing.JFrame {
 
     private void changeselectedAndShowImage() {
         int index = this.jList4SelectedImageNames.getSelectedIndex();
-        if (this.allSelectedImagePath.size() > 0 && index > -1) {
+        if (!this.allSelectedImagePath.isEmpty() && index > -1) {
             String path = this.allSelectedImagePath.get(index);
             File file = new File(path);
             try {
-                BufferedImage img = null;
                 this.actualImage = ImageIO.read(file);
                 if (this.actualImage != null) {
-                    this.graphics.drawImage(this.actualImage, 0, 0, this);
+                    this.currentMetaData = ExifUtil.readExifdataHashMap(file);
+                    Iterator <ImageMetadataItem> entry = this.currentMetaData.iterator();
+                    Vector<String> newListitems = new Vector();
+                    while (entry.hasNext()) {
+                        newListitems.add(entry.next().toString());
+                    }
+                    this.ImageExifsjList.setListData(newListitems);                    
+                    this.PaintToCanvas();
                 }
             } catch (Exception e) {
                 e.printStackTrace();
             }        
         }
+    }
+    
+    private void PaintToCanvas() {
+        this.graphics.drawImage(this.actualImage, 0, 0, this.Canvas4Image.getWidth() , this.Canvas4Image.getHeight(),  this.Canvas4Image);
     }
     
     private void stepSelectedImage(int direction) {
@@ -526,6 +548,14 @@ public class ExifGui2 extends javax.swing.JFrame {
     private void jList4SelectedImageNamesValueChanged(javax.swing.event.ListSelectionEvent evt) {//GEN-FIRST:event_jList4SelectedImageNamesValueChanged
         this.changeselectedAndShowImage();
     }//GEN-LAST:event_jList4SelectedImageNamesValueChanged
+
+    private void Canvas4ImageComponentResized(java.awt.event.ComponentEvent evt) {//GEN-FIRST:event_Canvas4ImageComponentResized
+        
+    }//GEN-LAST:event_Canvas4ImageComponentResized
+
+    private void jMenuBar1ComponentResized(java.awt.event.ComponentEvent evt) {//GEN-FIRST:event_jMenuBar1ComponentResized
+        this.PaintToCanvas();
+    }//GEN-LAST:event_jMenuBar1ComponentResized
 
     /**
      * @param args the command line arguments
@@ -568,6 +598,7 @@ public class ExifGui2 extends javax.swing.JFrame {
     private javax.swing.JDialog ExitDialog;
     private javax.swing.JButton ExitjButton;
     private javax.swing.JInternalFrame Frame4Image;
+    private javax.swing.JList<String> ImageExifsjList;
     private javax.swing.JFileChooser fileChooser;
     private javax.swing.JButton jButton1;
     private javax.swing.JButton jButton2;
@@ -581,7 +612,6 @@ public class ExifGui2 extends javax.swing.JFrame {
     private javax.swing.JButton jButtonSaveTheTaggedImages;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
-    private javax.swing.JList<String> jList1;
     private javax.swing.JList<String> jList4ImageNames;
     private javax.swing.JList<String> jList4Places;
     private javax.swing.JList<String> jList4SelectedImageNames;
@@ -600,6 +630,7 @@ public class ExifGui2 extends javax.swing.JFrame {
     private BufferStrategy bufferStrategy;
     private Graphics graphics;
     private int width, height;
-    private BufferedImage actualImage;
+    private BufferedImage actualImage;    
     private int selectedImageIndex;
+    private List<ImageMetadataItem> currentMetaData;
 }

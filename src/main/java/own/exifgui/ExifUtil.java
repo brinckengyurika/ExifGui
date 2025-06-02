@@ -29,7 +29,10 @@ import java.awt.Transparency;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.HashMap;
 
 import org.apache.commons.imaging.ImagingException;
 import org.apache.commons.imaging.common.BufferedImageFactory;
@@ -46,8 +49,18 @@ import org.apache.commons.imaging.formats.tiff.taginfos.TagInfo;
  * @author satch
  */
 public class ExifUtil {
-
-    public static void metadataExample(final File file) throws ImagingException, IOException {
+    
+    public static List<ImageMetadataItem> readExifdataHashMap(final File file) throws ImagingException, IOException {
+        List<ImageMetadataItem> items = new ArrayList<ImageMetadataItem>();
+        final ImageMetadata metadata = Imaging.getMetadata(file);
+        if (metadata instanceof JpegImageMetadata) {
+            final JpegImageMetadata jpegMetadata = (JpegImageMetadata) metadata;
+            items = jpegMetadata.getItems();
+        }
+        return items;
+    }
+    
+    public static void readExifdata(final File file) throws ImagingException, IOException {
         // get all metadata stored in EXIF format (ie. from JPEG or TIFF).
         final ImageMetadata metadata = Imaging.getMetadata(file);
 
@@ -135,7 +148,15 @@ public class ExifUtil {
             System.out.println();
         }
     }
-
+    
+    private static String getTagValue(final JpegImageMetadata jpegMetadata, final TagInfo tagInfo) {
+        final TiffField field = jpegMetadata.findExifValueWithExactMatch(tagInfo);
+        if (field == null) {
+            return "Not found.";
+        }
+        return field.getValueDescription();
+    }
+    
     private static void printTagValue(final JpegImageMetadata jpegMetadata, final TagInfo tagInfo) {
         final TiffField field = jpegMetadata.findExifValueWithExactMatch(tagInfo);
         if (field == null) {

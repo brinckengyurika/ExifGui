@@ -27,7 +27,11 @@ import java.awt.GraphicsDevice;
 import java.awt.GraphicsEnvironment;
 import java.awt.Transparency;
 import java.awt.image.BufferedImage;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -44,11 +48,69 @@ import org.apache.commons.imaging.formats.tiff.constants.GpsTagConstants;
 import org.apache.commons.imaging.formats.tiff.constants.TiffTagConstants;
 import org.apache.commons.imaging.formats.tiff.taginfos.TagInfo;
 
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.security.KeyManagementException;
+import java.security.NoSuchAlgorithmException;
+import java.util.Iterator;
+
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.TrustManager;
+
+
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.nio.charset.StandardCharsets;
+
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.util.Iterator;
+import java.util.List;
+import java.util.ArrayList;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import java.util.Collections;
+import java.util.Vector;
+
+
 /**
  *
  * @author satch
  */
 public class ExifUtil {
+
+    public static boolean IsDouble(String s) {
+        try {
+            Double.parseDouble(s);
+        } catch (NullPointerException e) {
+            return false;
+        } catch (NumberFormatException e) {
+            return false;
+        }
+        return true;
+    }
+
+    public static List<String> readFileInList(String fileName)
+    {
+        List<String> lines = Collections.emptyList();
+      	try {
+            lines = Files.readAllLines(
+                Paths.get(fileName),
+                StandardCharsets.UTF_8);
+        } catch(IOException e) {
+            // do something
+            e.printStackTrace();
+        }
+        return lines;
+    }    
+    
     
     public static List<ImageMetadataItem> readExifdataHashMap(final File file) throws ImagingException, IOException {
         List<ImageMetadataItem> items = new ArrayList<ImageMetadataItem>();
@@ -59,24 +121,12 @@ public class ExifUtil {
         }
         return items;
     }
-    
-    public static void readExifdata(final File file) throws ImagingException, IOException {
-        // get all metadata stored in EXIF format (ie. from JPEG or TIFF).
-        final ImageMetadata metadata = Imaging.getMetadata(file);
 
-        // System.out.println(metadata);
+    public static void readExifdata(final File file) throws ImagingException, IOException {
+        final ImageMetadata metadata = Imaging.getMetadata(file);
         if (metadata instanceof JpegImageMetadata) {
             final JpegImageMetadata jpegMetadata = (JpegImageMetadata) metadata;
-
-            // Jpeg EXIF metadata is stored in a TIFF-based directory structure
-            // and is identified with TIFF tags.
-            // Here we look for the "x resolution" tag, but
-            // we could just as easily search for any other tag.
-            //
-            // see the TiffConstants file for a list of TIFF tags.
             System.out.println("file: " + file.getPath());
-
-            // print out various interesting EXIF tags.
             printTagValue(jpegMetadata, TiffTagConstants.TIFF_TAG_XRESOLUTION);
             printTagValue(jpegMetadata, TiffTagConstants.TIFF_TAG_DATE_TIME);
             printTagValue(jpegMetadata, ExifTagConstants.EXIF_TAG_DATE_TIME_ORIGINAL);
@@ -89,10 +139,8 @@ public class ExifUtil {
             printTagValue(jpegMetadata, GpsTagConstants.GPS_TAG_GPS_LATITUDE);
             printTagValue(jpegMetadata, GpsTagConstants.GPS_TAG_GPS_LONGITUDE_REF);
             printTagValue(jpegMetadata, GpsTagConstants.GPS_TAG_GPS_LONGITUDE);
-
             System.out.println();
 
-            // simple interface to GPS data
             final TiffImageMetadata exifMetadata = jpegMetadata.getExif();
             if (null != exifMetadata) {
                 final TiffImageMetadata.GpsInfo gpsInfo = exifMetadata.getGpsInfo();
@@ -126,16 +174,10 @@ public class ExifUtil {
                 final RationalNumber gpsLongitudeDegrees = gpsLongitude[0];
                 final RationalNumber gpsLongitudeMinutes = gpsLongitude[1];
                 final RationalNumber gpsLongitudeSeconds = gpsLongitude[2];
-
-                // This will format the gps info like so:
-                //
-                // gpsLatitude: 8 degrees, 40 minutes, 42.2 seconds S
-                // gpsLongitude: 115 degrees, 26 minutes, 21.8 seconds E
                 System.out.println("    " + "GPS Latitude: " + gpsLatitudeDegrees.toDisplayString() + " degrees, " + gpsLatitudeMinutes.toDisplayString()
                         + " minutes, " + gpsLatitudeSeconds.toDisplayString() + " seconds " + gpsLatitudeRef);
                 System.out.println("    " + "GPS Longitude: " + gpsLongitudeDegrees.toDisplayString() + " degrees, " + gpsLongitudeMinutes.toDisplayString()
                         + " minutes, " + gpsLongitudeSeconds.toDisplayString() + " seconds " + gpsLongitudeRef);
-
             }
 
             System.out.println();
@@ -148,7 +190,7 @@ public class ExifUtil {
             System.out.println();
         }
     }
-    
+
     private static String getTagValue(final JpegImageMetadata jpegMetadata, final TagInfo tagInfo) {
         final TiffField field = jpegMetadata.findExifValueWithExactMatch(tagInfo);
         if (field == null) {
@@ -156,7 +198,7 @@ public class ExifUtil {
         }
         return field.getValueDescription();
     }
-    
+
     private static void printTagValue(final JpegImageMetadata jpegMetadata, final TagInfo tagInfo) {
         final TiffField field = jpegMetadata.findExifValueWithExactMatch(tagInfo);
         if (field == null) {
@@ -167,71 +209,27 @@ public class ExifUtil {
     }
 
     public void changeExifMetadata(final File jpegImageFile, final File dst) throws IOException, ImagingException, ImagingException {
-
         try (FileOutputStream fos = new FileOutputStream(dst); OutputStream os = new BufferedOutputStream(fos)) {
-
             TiffOutputSet outputSet = null;
-
-            // note that metadata might be null if no metadata is found.
             final ImageMetadata metadata = Imaging.getMetadata(jpegImageFile);
             final JpegImageMetadata jpegMetadata = (JpegImageMetadata) metadata;
             if (null != jpegMetadata) {
-                // note that exif might be null if no Exif metadata is found.
                 final TiffImageMetadata exif = jpegMetadata.getExif();
-
                 if (null != exif) {
-                    // TiffImageMetadata class is immutable (read-only).
-                    // TiffOutputSet class represents the Exif data to write.
-                    //
-                    // Usually, we want to update existing Exif metadata by
-                    // changing
-                    // the values of a few fields, or adding a field.
-                    // In these cases, it is easiest to use getOutputSet() to
-                    // start with a "copy" of the fields read from the image.
                     outputSet = exif.getOutputSet();
                 }
             }
-
-            // if file does not contain any exif metadata, we create an empty
-            // set of exif metadata. Otherwise, we keep all of the other
-            // existing tags.
             if (null == outputSet) {
                 outputSet = new TiffOutputSet();
             }
+            final TiffOutputDirectory exifDirectory = outputSet.getOrCreateExifDirectory();
+            exifDirectory.removeField(ExifTagConstants.EXIF_TAG_APERTURE_VALUE);
+            exifDirectory.add(ExifTagConstants.EXIF_TAG_APERTURE_VALUE, new RationalNumber(3, 10));
+            final double longitude = -74.0; // 74 degrees W (in Degrees East)
+            final double latitude = 40 + 43 / 60.0; // 40 degrees N (in Degrees North)
 
-            {
-                // Example of how to add a field/tag to the output set.
-                //
-                // Note that you should first remove the field/tag if it already
-                // exists in this directory, or you may end up with duplicate
-                // tags. See above.
-                //
-                // Certain fields/tags are expected in certain Exif directories;
-                // Others can occur in more than one directory (and often have a
-                // different meaning in different directories).
-                //
-                // TagInfo constants often contain a description of what
-                // directories are associated with a given tag.
-                //
-                final TiffOutputDirectory exifDirectory = outputSet.getOrCreateExifDirectory();
-                // make sure to remove old value if present (this method will
-                // not fail if the tag does not exist).
-                exifDirectory.removeField(ExifTagConstants.EXIF_TAG_APERTURE_VALUE);
-                exifDirectory.add(ExifTagConstants.EXIF_TAG_APERTURE_VALUE, new RationalNumber(3, 10));
-            }
+            outputSet.setGpsInDegrees(longitude, latitude);
 
-            {
-                // Example of how to add/update GPS info to output set.
-
-                // New York City
-                final double longitude = -74.0; // 74 degrees W (in Degrees East)
-                final double latitude = 40 + 43 / 60.0; // 40 degrees N (in Degrees
-                // North)
-
-                outputSet.setGpsInDegrees(longitude, latitude);
-            }
-
-            // printTagValue(jpegMetadata, TiffConstants.TIFF_TAG_DATE_TIME);
             new ExifRewriter().updateExifMetadataLossless(jpegImageFile, os, outputSet);
         }
     }
@@ -242,19 +240,6 @@ public class ExifUtil {
         }
     }
 
-    /**
-     * This example illustrates how to remove a tag (if present) from EXIF
-     * metadata in a JPEG file.
-     *
-     * In this case, we remove the "aperture" tag from the EXIF metadata if
-     * present.
-     *
-     * @param jpegImageFile A source image file.
-     * @param dst The output file.
-     * @throws IOException
-     * @throws ImagingException
-     * @throws ImagingException
-     */
     public void removeExifTag(final File jpegImageFile, final File dst) throws IOException, ImagingException, ImagingException {
         try (FileOutputStream fos = new FileOutputStream(dst); OutputStream os = new BufferedOutputStream(fos)) {
             TiffOutputSet outputSet = null;
@@ -267,106 +252,136 @@ public class ExifUtil {
                 final TiffImageMetadata exif = jpegMetadata.getExif();
 
                 if (null != exif) {
-                    // TiffImageMetadata class is immutable (read-only).
-                    // TiffOutputSet class represents the Exif data to write.
-                    //
-                    // Usually, we want to update existing Exif metadata by
-                    // changing
-                    // the values of a few fields, or adding a field.
-                    // In these cases, it is easiest to use getOutputSet() to
-                    // start with a "copy" of the fields read from the image.
                     outputSet = exif.getOutputSet();
                 }
             }
 
             if (null == outputSet) {
-                // file does not contain any exif metadata. We don't need to
-                // update the file; just copy it.
                 FileUtils.copyFile(jpegImageFile, dst);
                 return;
             }
-
-            {
-                // Example of how to remove a single tag/field.
-                // There are two ways to do this.
-
-                // Option 1: brute force
-                // Note that this approach is crude: Exif data is organized in
-                // directories. The same tag/field may appear in more than one
-                // directory, and have different meanings in each.
-                outputSet.removeField(ExifTagConstants.EXIF_TAG_APERTURE_VALUE);
-
-                // Option 2: precision
-                // We know the exact directory the tag should appear in, in this
-                // case the "exif" directory.
-                // One complicating factor is that in some cases, manufacturers
-                // will place the same tag in different directories.
-                // To learn which directory a tag appears in, either refer to
-                // the constants in ExifTagConstants.java or go to Phil Harvey's
-                // EXIF website.
-                final TiffOutputDirectory exifDirectory = outputSet.getExifDirectory();
-                if (null != exifDirectory) {
-                    exifDirectory.removeField(ExifTagConstants.EXIF_TAG_APERTURE_VALUE);
-                }
+            outputSet.removeField(ExifTagConstants.EXIF_TAG_APERTURE_VALUE);
+            final TiffOutputDirectory exifDirectory = outputSet.getExifDirectory();
+            if (null != exifDirectory) {
+                exifDirectory.removeField(ExifTagConstants.EXIF_TAG_APERTURE_VALUE);
             }
-
             new ExifRewriter().updateExifMetadataLossless(jpegImageFile, os, outputSet);
         }
     }
 
-    /**
-     * This example illustrates how to set the GPS values in JPEG EXIF metadata.
-     *
-     * @param jpegImageFile A source image file.
-     * @param dst The output file.
-     * @throws IOException
-     * @throws ImagingException
-     * @throws ImagingException
-     */
-    public void setExifGPSTag(final File jpegImageFile, final File dst) throws IOException, ImagingException, ImagingException {
-        try (FileOutputStream fos = new FileOutputStream(dst); OutputStream os = new BufferedOutputStream(fos)) {
-            TiffOutputSet outputSet = null;
-
-            // note that metadata might be null if no metadata is found.
+    public void setExifGPSTag(String source_path, double longitude, double latitude) throws IOException, ImagingException, ImagingException {
+        try {
+            File jpegImageFile = new File(source_path);
+            String temporary_destination_filename = "temporary.jpg";
+            File dst = new File(temporary_destination_filename);
             final ImageMetadata metadata = Imaging.getMetadata(jpegImageFile);
             final JpegImageMetadata jpegMetadata = (JpegImageMetadata) metadata;
             if (null != jpegMetadata) {
-                // note that exif might be null if no Exif metadata is found.
-                final TiffImageMetadata exif = jpegMetadata.getExif();
-
-                if (null != exif) {
-                    // TiffImageMetadata class is immutable (read-only).
-                    // TiffOutputSet class represents the Exif data to write.
-                    //
-                    // Usually, we want to update existing Exif metadata by
-                    // changing
-                    // the values of a few fields, or adding a field.
-                    // In these cases, it is easiest to use getOutputSet() to
-                    // start with a "copy" of the fields read from the image.
-                    outputSet = exif.getOutputSet();
+                try (FileOutputStream fos = new FileOutputStream(dst); OutputStream os = new BufferedOutputStream(fos)) {
+                    TiffOutputSet outputSet = null;
+                    final TiffImageMetadata exif = jpegMetadata.getExif();
+                    if (null != exif) {
+                        outputSet = exif.getOutputSet();
+                    }
+                    if (null == outputSet) {
+                        outputSet = new TiffOutputSet();
+                    }
+                    final double lotude = longitude;
+                    final double latude = latitude;
+                    outputSet.setGpsInDegrees(lotude, latude);
+                    new ExifRewriter().updateExifMetadataLossless(jpegImageFile, os, outputSet);
+                    File f1 = new File(temporary_destination_filename);
+                    File f2 = new File(source_path);
+                    f1.renameTo(f2);
                 }
             }
-
-            // if file does not contain any exif metadata, we create an empty
-            // set of exif metadata. Otherwise, we keep all of the other
-            // existing tags.
-            if (null == outputSet) {
-                outputSet = new TiffOutputSet();
-            }
-
-            {
-                // Example of how to add/update GPS info to output set.
-
-                // New York City
-                final double longitude = -74.0; // 74 degrees W (in Degrees East)
-                final double latitude = 40 + 43 / 60.0; // 40 degrees N (in Degrees
-                // North)
-
-                outputSet.setGpsInDegrees(longitude, latitude);
-            }
-
-            new ExifRewriter().updateExifMetadataLossless(jpegImageFile, os, outputSet);
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
+    public static void appendStrToFile(String fileName, String str) {
+        try {
+            BufferedWriter out = new BufferedWriter(new FileWriter(fileName, true));
+            out.write(str);
+            out.close();
+        } catch (IOException e) {
+            System.out.println("exception occurred" + e);
+        }
+    }
+
+    public static Vector<JsonNode> AskAboutTheLatLOnTheOpenstreetmap(String location)  throws IOException {
+        //"https://nominatim.openstreetmap.org/search?q=Budapest+Kossuth+utca+12&format=jsonv2"  
+        Vector <JsonNode> ret = new Vector();
+        try {
+            String surl = "https://nominatim.openstreetmap.org/search";
+            String format = "format=jsonv2";
+            String[] pslitted = location.split("[,\\.\\s]");
+            String question = String.join("+", pslitted);
+            String fulluri = "%s?q=%s&%s".formatted(surl, question, format);
+            System.out.println(fulluri);
+            URL obj = new URL(fulluri);
+            HttpURLConnection con = (HttpURLConnection) obj.openConnection();
+            con.setRequestMethod("GET");        
+            int responseCode = con.getResponseCode();
+            System.out.println("GET Response Code :: " + responseCode);
+            if (responseCode == HttpURLConnection.HTTP_OK) { // success
+                BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()));
+                String inputLine;
+                StringBuilder response = new StringBuilder();
+
+                while ((inputLine = in.readLine()) != null) {
+                    response.append(inputLine);
+                    System.out.println(inputLine);
+                }
+                in.close();
+                ObjectMapper mapper = new ObjectMapper();
+                JsonNode addrjNode;
+                JsonNode jNode = mapper.readTree(response.toString());
+                System.out.println(response.toString());
+                System.out.println(jNode.getNodeType());
+                Iterator <JsonNode> node = jNode.elements();
+                while (node.hasNext()) {
+                    ret.add(node.next());
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }            
+        return ret;
+    }
+
+    public static void sendPOST(String POST_URL, String POST_PARAMS) throws IOException {
+        URL obj = new URL(POST_URL);
+        HttpURLConnection con = (HttpURLConnection) obj.openConnection();
+        con.setRequestMethod("POST");
+//		con.setRequestProperty("User-Agent", USER_AGENT);
+
+        // For POST only - START
+        con.setDoOutput(true);
+        OutputStream os = con.getOutputStream();
+        os.write(POST_PARAMS.getBytes());
+        os.flush();
+        os.close();
+        // For POST only - END
+
+        int responseCode = con.getResponseCode();
+        System.out.println("POST Response Code :: " + responseCode);
+
+        if (responseCode == HttpURLConnection.HTTP_OK) { //success
+            BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()));
+            String inputLine;
+            StringBuilder response = new StringBuilder();
+
+            while ((inputLine = in.readLine()) != null) {
+                response.append(inputLine);
+            }
+            in.close();
+
+            // print result
+            System.out.println(response.toString());
+        } else {
+            System.out.println("POST request did not work.");
+        }
+    }
 }

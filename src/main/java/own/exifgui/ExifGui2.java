@@ -29,6 +29,7 @@ import javax.imageio.ImageIO;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import javax.swing.JOptionPane;
 import org.apache.commons.imaging.common.ImageMetadata;
 import org.apache.commons.imaging.common.ImageMetadata.ImageMetadataItem;
 
@@ -70,16 +71,10 @@ public class ExifGui2 extends javax.swing.JFrame {
         CanceljButton = new javax.swing.JButton();
         jScrollPane2 = new javax.swing.JScrollPane();
         jList4Places = new javax.swing.JList<>();
-        jButtonSavePlacesLIst = new javax.swing.JButton();
         jButtonAppendPlaceToSelected = new javax.swing.JButton();
-        jButtonAddNewPlace = new javax.swing.JButton();
-        jButtonSaveTheTaggedImages = new javax.swing.JButton();
-        Frame4Image = new javax.swing.JInternalFrame();
-        Canvas4Image = new java.awt.Canvas();
         jScrollPane3 = new javax.swing.JScrollPane();
         ImageExifsjList = new javax.swing.JList<>();
         jButtonAddNewPlace1 = new javax.swing.JButton();
-        jButtonSavePlacesLIst1 = new javax.swing.JButton();
         jLabel1 = new javax.swing.JLabel();
         jLabel2 = new javax.swing.JLabel();
         jScrollPane4 = new javax.swing.JScrollPane();
@@ -90,6 +85,14 @@ public class ExifGui2 extends javax.swing.JFrame {
         jButton2 = new javax.swing.JButton();
         jButtonAppendPlaceToSelected1 = new javax.swing.JButton();
         jButtonAppendPlaceToSelected2 = new javax.swing.JButton();
+        Canvas4Image = new java.awt.Canvas();
+        jScrollPane5 = new javax.swing.JScrollPane();
+        jList4Places1 = new javax.swing.JList<>();
+        jLabel3 = new javax.swing.JLabel();
+        jButtonAddNewPlace2 = new javax.swing.JButton();
+        jLabel4 = new javax.swing.JLabel();
+        AbsolutePathjTextField = new javax.swing.JTextField();
+        jLabel5 = new javax.swing.JLabel();
         jMenuBar1 = new javax.swing.JMenuBar();
         jMenu1 = new javax.swing.JMenu();
         jMenuItem1 = new javax.swing.JMenuItem();
@@ -134,76 +137,25 @@ public class ExifGui2 extends javax.swing.JFrame {
         );
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setResizable(false);
 
         jList4Places.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
         jScrollPane2.setViewportView(jList4Places);
 
-        jButtonSavePlacesLIst.setText("Save list");
-        jButtonSavePlacesLIst.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButtonSavePlacesLIstActionPerformed(evt);
-            }
-        });
-
-        jButtonAppendPlaceToSelected.setText("Append place to selected");
-
-        jButtonAddNewPlace.setText("Add new place");
-        jButtonAddNewPlace.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButtonAddNewPlaceActionPerformed(evt);
-            }
-        });
-
-        jButtonSaveTheTaggedImages.setText("Save the tagged images");
-        jButtonSaveTheTaggedImages.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButtonSaveTheTaggedImagesActionPerformed(evt);
-            }
-        });
-
-        Frame4Image.setVisible(true);
-
-        Canvas4Image.setPreferredSize(new java.awt.Dimension(110, 110));
-        Canvas4Image.addComponentListener(new java.awt.event.ComponentAdapter() {
-            public void componentResized(java.awt.event.ComponentEvent evt) {
-                Canvas4ImageComponentResized(evt);
-            }
-        });
-
-        javax.swing.GroupLayout Frame4ImageLayout = new javax.swing.GroupLayout(Frame4Image.getContentPane());
-        Frame4Image.getContentPane().setLayout(Frame4ImageLayout);
-        Frame4ImageLayout.setHorizontalGroup(
-            Frame4ImageLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(Frame4ImageLayout.createSequentialGroup()
-                .addComponent(Canvas4Image, javax.swing.GroupLayout.PREFERRED_SIZE, 963, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(0, 0, Short.MAX_VALUE))
-        );
-        Frame4ImageLayout.setVerticalGroup(
-            Frame4ImageLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(Frame4ImageLayout.createSequentialGroup()
-                .addComponent(Canvas4Image, javax.swing.GroupLayout.PREFERRED_SIZE, 642, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(0, 0, Short.MAX_VALUE))
-        );
+        jButtonAppendPlaceToSelected.setText("Append location to the selected images");
 
         jScrollPane3.setViewportView(ImageExifsjList);
 
-        jButtonAddNewPlace1.setText("Add new Metadata");
+        jButtonAddNewPlace1.setText("Add new Location");
         jButtonAddNewPlace1.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jButtonAddNewPlace1ActionPerformed(evt);
             }
         });
 
-        jButtonSavePlacesLIst1.setText("Save list");
-        jButtonSavePlacesLIst1.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButtonSavePlacesLIst1ActionPerformed(evt);
-            }
-        });
+        jLabel1.setText("Locations:");
 
-        jLabel1.setText("Location");
-
-        jLabel2.setText("Meta data");
+        jLabel2.setText("Current Exif data:");
 
         jScrollPane4.setViewportView(jList4ImageNames);
 
@@ -241,6 +193,32 @@ public class ExifGui2 extends javax.swing.JFrame {
                 jButtonAppendPlaceToSelected2ActionPerformed(evt);
             }
         });
+
+        Canvas4Image.setBackground(new java.awt.Color(255, 255, 255));
+        Canvas4Image.setPreferredSize(new java.awt.Dimension(110, 110));
+        Canvas4Image.addComponentListener(new java.awt.event.ComponentAdapter() {
+            public void componentResized(java.awt.event.ComponentEvent evt) {
+                Canvas4ImageComponentResized(evt);
+            }
+        });
+
+        jList4Places1.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
+        jScrollPane5.setViewportView(jList4Places1);
+
+        jLabel3.setText("User comments:");
+
+        jButtonAddNewPlace2.setText("Add new User comment");
+        jButtonAddNewPlace2.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButtonAddNewPlace2ActionPerformed(evt);
+            }
+        });
+
+        jLabel4.setText("Directory:");
+
+        AbsolutePathjTextField.setEditable(false);
+
+        jLabel5.setText("Selected files:");
 
         jMenuBar1.addComponentListener(new java.awt.event.ComponentAdapter() {
             public void componentResized(java.awt.event.ComponentEvent evt) {
@@ -290,116 +268,105 @@ public class ExifGui2 extends javax.swing.JFrame {
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
-                        .addGap(15, 15, 15)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 634, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jButton1)))
+                .addContainerGap()
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(jScrollPane4, javax.swing.GroupLayout.PREFERRED_SIZE, 505, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addGroup(layout.createSequentialGroup()
-                        .addGap(15, 15, 15)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addGroup(layout.createSequentialGroup()
-                                .addComponent(jButton2)
-                                .addGap(321, 321, 321)
-                                .addComponent(jButtonAppendPlaceToSelected2)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(jButtonAppendPlaceToSelected1)
-                                .addGap(233, 233, 233)
-                                .addComponent(jButtonAppendPlaceToSelected)
-                                .addGap(385, 385, 385)
-                                .addComponent(jButtonSaveTheTaggedImages))
-                            .addGroup(layout.createSequentialGroup()
-                                .addComponent(jScrollPane4, javax.swing.GroupLayout.PREFERRED_SIZE, 636, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addGap(2, 2, 2)
-                                .addComponent(Frame4Image, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addGap(2, 2, 2)))))
+                        .addComponent(jButton2)
+                        .addGap(129, 129, 129)
+                        .addComponent(jLabel5))
+                    .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 505, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(jButtonAppendPlaceToSelected1)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jButtonAppendPlaceToSelected2)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(jButton1))
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(jLabel4)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(AbsolutePathjTextField)))
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(568, 568, 568)
+                        .addComponent(jButtonAppendPlaceToSelected))
+                    .addGroup(layout.createSequentialGroup()
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(Canvas4Image, javax.swing.GroupLayout.DEFAULT_SIZE, 843, Short.MAX_VALUE)))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 371, Short.MAX_VALUE)
-                    .addComponent(jScrollPane3)
+                    .addComponent(jScrollPane5, javax.swing.GroupLayout.DEFAULT_SIZE, 351, Short.MAX_VALUE)
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(jLabel3)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(jButtonAddNewPlace2))
                     .addGroup(layout.createSequentialGroup()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(layout.createSequentialGroup()
-                                .addComponent(jButtonAddNewPlace1)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(jButtonSavePlacesLIst1))
-                            .addComponent(jLabel1)
+                            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                                .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
+                                    .addComponent(jLabel1)
+                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                    .addComponent(jButtonAddNewPlace1))
+                                .addComponent(jScrollPane2, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 351, Short.MAX_VALUE)
+                                .addComponent(jScrollPane3, javax.swing.GroupLayout.Alignment.LEADING))
                             .addComponent(jLabel2))
-                        .addGap(0, 0, Short.MAX_VALUE))
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(jButtonAddNewPlace)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(jButtonSavePlacesLIst)))
+                        .addGap(0, 0, Short.MAX_VALUE)))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                            .addComponent(Frame4Image, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addGroup(layout.createSequentialGroup()
-                                .addGap(11, 11, 11)
-                                .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 19, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                                    .addComponent(jButtonAddNewPlace)
-                                    .addComponent(jButtonSavePlacesLIst))
-                                .addGap(30, 30, 30)
-                                .addComponent(jLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, 19, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(jScrollPane3)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                                    .addComponent(jButtonAddNewPlace1)
-                                    .addComponent(jButtonSavePlacesLIst1))))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jButtonSaveTheTaggedImages)
-                            .addComponent(jButtonAppendPlaceToSelected)
+                        .addContainerGap()
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(AbsolutePathjTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jLabel4))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jScrollPane4, javax.swing.GroupLayout.PREFERRED_SIZE, 291, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(jButton2)
+                            .addComponent(jLabel5))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 310, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                        .addComponent(Canvas4Image, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                             .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                                .addComponent(jButtonAppendPlaceToSelected1)
-                                .addComponent(jButtonAppendPlaceToSelected2)))
-                        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                    .addGroup(layout.createSequentialGroup()
-                        .addGap(0, 0, Short.MAX_VALUE)
-                        .addComponent(jScrollPane4, javax.swing.GroupLayout.PREFERRED_SIZE, 310, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jButton2)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 310, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(18, 18, 18)
+                                .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 19, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addComponent(jButtonAddNewPlace1))
+                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                            .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 218, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addGap(18, 18, 18)
+                            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                                .addComponent(jLabel3, javax.swing.GroupLayout.PREFERRED_SIZE, 19, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addComponent(jButtonAddNewPlace2))
+                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                            .addComponent(jScrollPane5, javax.swing.GroupLayout.PREFERRED_SIZE, 206, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                            .addComponent(jLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, 19, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                            .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 155, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addComponent(jButtonAppendPlaceToSelected1)
+                        .addComponent(jButtonAppendPlaceToSelected2))
+                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                         .addComponent(jButton1)
-                        .addGap(17, 17, 17))))
+                        .addComponent(jButtonAppendPlaceToSelected)))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    private void jButtonSavePlacesLIstActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonSavePlacesLIstActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_jButtonSavePlacesLIstActionPerformed
-
-    private void jButtonAddNewPlaceActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonAddNewPlaceActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_jButtonAddNewPlaceActionPerformed
-
-    private void jButtonSaveTheTaggedImagesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonSaveTheTaggedImagesActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_jButtonSaveTheTaggedImagesActionPerformed
-
     private void jButtonAddNewPlace1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonAddNewPlace1ActionPerformed
-        // TODO add your handling code here:
+        AddNewLocation locationframe = new AddNewLocation();
+        locationframe.pack();
+        locationframe.setVisible(true);
     }//GEN-LAST:event_jButtonAddNewPlace1ActionPerformed
-
-    private void jButtonSavePlacesLIst1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonSavePlacesLIst1ActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_jButtonSavePlacesLIst1ActionPerformed
 
     private void jMenu1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenu1ActionPerformed
         // TODO add your handling code here:
@@ -413,7 +380,10 @@ public class ExifGui2 extends javax.swing.JFrame {
 
     private void jMenuItem2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem2ActionPerformed
         // TODO add your handling code here:
-        System.exit(0);
+        int code = JOptionPane.showConfirmDialog(null, "Exit?", "Select", JOptionPane.YES_NO_OPTION);
+        if (code == 0) {
+            System.exit(0);
+        }
     }//GEN-LAST:event_jMenuItem2ActionPerformed
 
     private void jMenuItem1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem1ActionPerformed
@@ -449,6 +419,7 @@ public class ExifGui2 extends javax.swing.JFrame {
                         }
                     }
                     this.jList4ImageNames.setListData(fileVector);
+                    this.AbsolutePathjTextField.setText(absolute_path);
             } catch (IOException ex) {
                 Logger.getLogger(ExifGui2.class.getName()).log(Level.SEVERE, null, ex);
             }
@@ -476,6 +447,21 @@ public class ExifGui2 extends javax.swing.JFrame {
         this.jList4SelectedImageNames.setListData(this.allSelectedImagePath);       
     }//GEN-LAST:event_jButton1ActionPerformed
 
+    public void LocadLocationList() {
+        String filename = "Locations.txt";
+        try {
+            List<String> content = ExifUtil.readFileInList(filename);
+            Iterator<String> lociter = content.iterator();
+            String Location, locationName, Lat, Lon;
+            while(lociter.hasNext()) {
+                String splitted[] = lociter.next().split("\\.");
+                Location =   splitted[0]
+            }
+        } catch (Exception e){
+            e.printStackTrace();
+        }
+    }
+    
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
         List <String> selected = this.jList4ImageNames.getSelectedValuesList();
         ListIterator<String> li = selected.listIterator();
@@ -557,6 +543,10 @@ public class ExifGui2 extends javax.swing.JFrame {
         this.PaintToCanvas();
     }//GEN-LAST:event_jMenuBar1ComponentResized
 
+    private void jButtonAddNewPlace2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonAddNewPlace2ActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jButtonAddNewPlace2ActionPerformed
+
     /**
      * @param args the command line arguments
      */
@@ -593,27 +583,28 @@ public class ExifGui2 extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JTextField AbsolutePathjTextField;
     private javax.swing.JButton CanceljButton;
     private java.awt.Canvas Canvas4Image;
     private javax.swing.JDialog ExitDialog;
     private javax.swing.JButton ExitjButton;
-    private javax.swing.JInternalFrame Frame4Image;
     private javax.swing.JList<String> ImageExifsjList;
     private javax.swing.JFileChooser fileChooser;
     private javax.swing.JButton jButton1;
     private javax.swing.JButton jButton2;
-    private javax.swing.JButton jButtonAddNewPlace;
     private javax.swing.JButton jButtonAddNewPlace1;
+    private javax.swing.JButton jButtonAddNewPlace2;
     private javax.swing.JButton jButtonAppendPlaceToSelected;
     private javax.swing.JButton jButtonAppendPlaceToSelected1;
     private javax.swing.JButton jButtonAppendPlaceToSelected2;
-    private javax.swing.JButton jButtonSavePlacesLIst;
-    private javax.swing.JButton jButtonSavePlacesLIst1;
-    private javax.swing.JButton jButtonSaveTheTaggedImages;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
+    private javax.swing.JLabel jLabel3;
+    private javax.swing.JLabel jLabel4;
+    private javax.swing.JLabel jLabel5;
     private javax.swing.JList<String> jList4ImageNames;
     private javax.swing.JList<String> jList4Places;
+    private javax.swing.JList<String> jList4Places1;
     private javax.swing.JList<String> jList4SelectedImageNames;
     private javax.swing.JMenu jMenu1;
     private javax.swing.JMenuBar jMenuBar1;
@@ -623,6 +614,7 @@ public class ExifGui2 extends javax.swing.JFrame {
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JScrollPane jScrollPane3;
     private javax.swing.JScrollPane jScrollPane4;
+    private javax.swing.JScrollPane jScrollPane5;
     private javax.swing.JPopupMenu.Separator jSeparator1;
     // End of variables declaration//GEN-END:variables
 
@@ -633,4 +625,6 @@ public class ExifGui2 extends javax.swing.JFrame {
     private BufferedImage actualImage;    
     private int selectedImageIndex;
     private List<ImageMetadataItem> currentMetaData;
+    private Vector<String> locations_encoded;
+    private Vector<String> usercomments_encoded;
 }

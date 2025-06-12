@@ -25,15 +25,17 @@ import java.awt.Color;
 import java.awt.image.BufferStrategy; 
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
+import java.util.Base64;
 import javax.imageio.ImageIO;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import javax.swing.JOptionPane;
+import javax.swing.ListModel;
 import org.apache.commons.imaging.common.ImageMetadata;
 import org.apache.commons.imaging.common.ImageMetadata.ImageMetadataItem;
-
 import org.apache.commons.imaging.formats.tiff.TiffField;
+
 
 /**
  *
@@ -46,7 +48,9 @@ public class ExifGui2 extends javax.swing.JFrame {
      */
     public ExifGui2() {
         initComponents();
-        allSelectedImagePath = new Vector();
+        this.location_filename = "Locations.txt";
+        this.comment_filename = "UserComments.txt";
+        this.allSelectedImagePath = new Vector();
         this.Canvas4Image.createBufferStrategy(1);
         this.bufferStrategy = this.Canvas4Image.getBufferStrategy();
         this.graphics = bufferStrategy.getDrawGraphics();
@@ -54,6 +58,15 @@ public class ExifGui2 extends javax.swing.JFrame {
         this.width = this.Canvas4Image.getWidth();
         this.selectedImageIndex = -1;
         this.currentMetaData = new ArrayList();
+        this.locations_original = new Vector();
+        this.usercomments_original = new Vector();
+        this.locations_decoded = new Vector();
+        this.usercomments_decoded = new Vector();
+        this.LoadLocationList();
+        this.LoadUserCommentsList();
+        this.locationselectionindex = -1;
+        this.commentselectionindex = -1;
+        
     }
 
     /**
@@ -70,8 +83,8 @@ public class ExifGui2 extends javax.swing.JFrame {
         ExitjButton = new javax.swing.JButton();
         CanceljButton = new javax.swing.JButton();
         jScrollPane2 = new javax.swing.JScrollPane();
-        jList4Places = new javax.swing.JList<>();
-        jButtonAppendPlaceToSelected = new javax.swing.JButton();
+        LocationjList = new javax.swing.JList<>();
+        AppendPlaceToSelectedjButton = new javax.swing.JButton();
         jScrollPane3 = new javax.swing.JScrollPane();
         ImageExifsjList = new javax.swing.JList<>();
         jButtonAddNewPlace1 = new javax.swing.JButton();
@@ -80,19 +93,22 @@ public class ExifGui2 extends javax.swing.JFrame {
         jScrollPane4 = new javax.swing.JScrollPane();
         jList4ImageNames = new javax.swing.JList<>();
         jScrollPane1 = new javax.swing.JScrollPane();
-        jList4SelectedImageNames = new javax.swing.JList<>();
+        SelectedImageNamesjList = new javax.swing.JList<>();
         jButton1 = new javax.swing.JButton();
         jButton2 = new javax.swing.JButton();
         jButtonAppendPlaceToSelected1 = new javax.swing.JButton();
         jButtonAppendPlaceToSelected2 = new javax.swing.JButton();
         Canvas4Image = new java.awt.Canvas();
         jScrollPane5 = new javax.swing.JScrollPane();
-        jList4Places1 = new javax.swing.JList<>();
+        UserCommentsjList = new javax.swing.JList<>();
         jLabel3 = new javax.swing.JLabel();
         jButtonAddNewPlace2 = new javax.swing.JButton();
         jLabel4 = new javax.swing.JLabel();
         AbsolutePathjTextField = new javax.swing.JTextField();
         jLabel5 = new javax.swing.JLabel();
+        DeleteLocationjButton = new javax.swing.JButton();
+        DeleteCommentjButton = new javax.swing.JButton();
+        OverwriteExistingExifInformationCheckBox = new javax.swing.JCheckBox();
         jMenuBar1 = new javax.swing.JMenuBar();
         jMenu1 = new javax.swing.JMenu();
         jMenuItem1 = new javax.swing.JMenuItem();
@@ -139,14 +155,33 @@ public class ExifGui2 extends javax.swing.JFrame {
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setResizable(false);
 
-        jList4Places.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
-        jScrollPane2.setViewportView(jList4Places);
+        LocationjList.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
+        LocationjList.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                LocationjListMouseClicked(evt);
+            }
+            public void mouseReleased(java.awt.event.MouseEvent evt) {
+                LocationjListMouseReleased(evt);
+            }
+        });
+        LocationjList.addListSelectionListener(new javax.swing.event.ListSelectionListener() {
+            public void valueChanged(javax.swing.event.ListSelectionEvent evt) {
+                LocationjListValueChanged(evt);
+            }
+        });
+        jScrollPane2.setViewportView(LocationjList);
 
-        jButtonAppendPlaceToSelected.setText("Append location to the selected images");
+        AppendPlaceToSelectedjButton.setText("Append selected location and usercomment to the selected images");
+        AppendPlaceToSelectedjButton.setEnabled(false);
+        AppendPlaceToSelectedjButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                AppendPlaceToSelectedjButtonActionPerformed(evt);
+            }
+        });
 
         jScrollPane3.setViewportView(ImageExifsjList);
 
-        jButtonAddNewPlace1.setText("Add new Location");
+        jButtonAddNewPlace1.setText("Add location");
         jButtonAddNewPlace1.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jButtonAddNewPlace1ActionPerformed(evt);
@@ -159,12 +194,12 @@ public class ExifGui2 extends javax.swing.JFrame {
 
         jScrollPane4.setViewportView(jList4ImageNames);
 
-        jList4SelectedImageNames.addListSelectionListener(new javax.swing.event.ListSelectionListener() {
+        SelectedImageNamesjList.addListSelectionListener(new javax.swing.event.ListSelectionListener() {
             public void valueChanged(javax.swing.event.ListSelectionEvent evt) {
-                jList4SelectedImageNamesValueChanged(evt);
+                SelectedImageNamesjListValueChanged(evt);
             }
         });
-        jScrollPane1.setViewportView(jList4SelectedImageNames);
+        jScrollPane1.setViewportView(SelectedImageNamesjList);
 
         jButton1.setText("Remove from list");
         jButton1.addActionListener(new java.awt.event.ActionListener() {
@@ -202,12 +237,22 @@ public class ExifGui2 extends javax.swing.JFrame {
             }
         });
 
-        jList4Places1.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
-        jScrollPane5.setViewportView(jList4Places1);
+        UserCommentsjList.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
+        UserCommentsjList.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                UserCommentsjListMouseClicked(evt);
+            }
+        });
+        UserCommentsjList.addListSelectionListener(new javax.swing.event.ListSelectionListener() {
+            public void valueChanged(javax.swing.event.ListSelectionEvent evt) {
+                UserCommentsjListValueChanged(evt);
+            }
+        });
+        jScrollPane5.setViewportView(UserCommentsjList);
 
-        jLabel3.setText("User comments:");
+        jLabel3.setText("Comments:");
 
-        jButtonAddNewPlace2.setText("Add new User comment");
+        jButtonAddNewPlace2.setText("Add comment");
         jButtonAddNewPlace2.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jButtonAddNewPlace2ActionPerformed(evt);
@@ -216,9 +261,32 @@ public class ExifGui2 extends javax.swing.JFrame {
 
         jLabel4.setText("Directory:");
 
-        AbsolutePathjTextField.setEditable(false);
+        AbsolutePathjTextField.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyReleased(java.awt.event.KeyEvent evt) {
+                AbsolutePathjTextFieldKeyReleased(evt);
+            }
+        });
 
         jLabel5.setText("Selected files:");
+
+        DeleteLocationjButton.setText("Delete selected");
+        DeleteLocationjButton.setEnabled(false);
+        DeleteLocationjButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                DeleteLocationjButtonActionPerformed(evt);
+            }
+        });
+
+        DeleteCommentjButton.setText("Delete selected");
+        DeleteCommentjButton.setEnabled(false);
+        DeleteCommentjButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                DeleteCommentjButtonActionPerformed(evt);
+            }
+        });
+
+        OverwriteExistingExifInformationCheckBox.setSelected(true);
+        OverwriteExistingExifInformationCheckBox.setText("Overwrite the existing exif records");
 
         jMenuBar1.addComponentListener(new java.awt.event.ComponentAdapter() {
             public void componentResized(java.awt.event.ComponentEvent evt) {
@@ -286,27 +354,31 @@ public class ExifGui2 extends javax.swing.JFrame {
                         .addComponent(jLabel4)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(AbsolutePathjTextField)))
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(Canvas4Image, javax.swing.GroupLayout.PREFERRED_SIZE, 843, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addGroup(layout.createSequentialGroup()
-                        .addGap(568, 568, 568)
-                        .addComponent(jButtonAppendPlaceToSelected))
-                    .addGroup(layout.createSequentialGroup()
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(Canvas4Image, javax.swing.GroupLayout.DEFAULT_SIZE, 843, Short.MAX_VALUE)))
+                        .addComponent(OverwriteExistingExifInformationCheckBox)
+                        .addGap(100, 100, 100)
+                        .addComponent(AppendPlaceToSelectedjButton)))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jScrollPane5, javax.swing.GroupLayout.DEFAULT_SIZE, 351, Short.MAX_VALUE)
+                    .addComponent(jScrollPane5)
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(jLabel3)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(jButtonAddNewPlace2))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jButtonAddNewPlace2)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 19, Short.MAX_VALUE)
+                        .addComponent(DeleteCommentjButton))
                     .addGroup(layout.createSequentialGroup()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
                                 .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
                                     .addComponent(jLabel1)
+                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                    .addComponent(jButtonAddNewPlace1)
                                     .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                    .addComponent(jButtonAddNewPlace1))
+                                    .addComponent(DeleteLocationjButton))
                                 .addComponent(jScrollPane2, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 351, Short.MAX_VALUE)
                                 .addComponent(jScrollPane3, javax.swing.GroupLayout.Alignment.LEADING))
                             .addComponent(jLabel2))
@@ -317,7 +389,7 @@ public class ExifGui2 extends javax.swing.JFrame {
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(layout.createSequentialGroup()
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                         .addContainerGap()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(AbsolutePathjTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -329,19 +401,21 @@ public class ExifGui2 extends javax.swing.JFrame {
                             .addComponent(jButton2)
                             .addComponent(jLabel5))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 310, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 325, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                         .addComponent(Canvas4Image, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                             .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                                 .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 19, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addComponent(jButtonAddNewPlace1))
+                                .addComponent(jButtonAddNewPlace1)
+                                .addComponent(DeleteLocationjButton))
                             .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                             .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 218, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addGap(18, 18, 18)
                             .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                                 .addComponent(jLabel3, javax.swing.GroupLayout.PREFERRED_SIZE, 19, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addComponent(jButtonAddNewPlace2))
+                                .addComponent(jButtonAddNewPlace2)
+                                .addComponent(DeleteCommentjButton))
                             .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                             .addComponent(jScrollPane5, javax.swing.GroupLayout.PREFERRED_SIZE, 206, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -354,8 +428,9 @@ public class ExifGui2 extends javax.swing.JFrame {
                         .addComponent(jButtonAppendPlaceToSelected1)
                         .addComponent(jButtonAppendPlaceToSelected2))
                     .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                        .addComponent(jButton1)
-                        .addComponent(jButtonAppendPlaceToSelected)))
+                        .addComponent(AppendPlaceToSelectedjButton)
+                        .addComponent(OverwriteExistingExifInformationCheckBox))
+                    .addComponent(jButton1))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
@@ -363,9 +438,10 @@ public class ExifGui2 extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void jButtonAddNewPlace1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonAddNewPlace1ActionPerformed
-        AddNewLocation locationframe = new AddNewLocation();
+        AddNewLocation locationframe = new AddNewLocation(this);
         locationframe.pack();
         locationframe.setVisible(true);
+        this.LoadLocationList();
     }//GEN-LAST:event_jButtonAddNewPlace1ActionPerformed
 
     private void jMenu1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenu1ActionPerformed
@@ -386,46 +462,44 @@ public class ExifGui2 extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_jMenuItem2ActionPerformed
 
+    private void handlingNewPathSelected(File file) {
+        String absolute_path = file.getAbsolutePath();
+        Set<String> fileSet = new HashSet<>();
+        String[] splitted_filename;
+        String ext;
+        String full_filepath;
+        Vector<String> fileVector = new Vector();
+        DefaultListModel listModel = new DefaultListModel();
+        try (
+                DirectoryStream<Path> stream = Files.newDirectoryStream(Paths.get(absolute_path))) {
+                for (Path path : stream) {
+                    if (!Files.isDirectory(path)) {
+                        splitted_filename = path.getFileName().toString().split("\\.");                            
+                        if (splitted_filename.length == 2) {
+                            ext = splitted_filename[1].trim();
+                            if (ext.compareToIgnoreCase("jpg") == 0 || ext.compareToIgnoreCase("jpeg") == 0) {
+                                full_filepath = Path.of(absolute_path, path.getFileName().toString()).toString();
+                                fileSet.add(full_filepath);
+                                fileVector.add(full_filepath);
+                            }
+                        }
+                    }
+                }
+                this.jList4ImageNames.setListData(fileVector);
+                this.AbsolutePathjTextField.setText(absolute_path);
+        } catch (IOException ex) {
+            Logger.getLogger(ExifGui2.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+    
     private void jMenuItem1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem1ActionPerformed
-        // TODO add your handling code here:
-        String absolute_path;
         fileChooser.setFileSelectionMode( JFileChooser.DIRECTORIES_ONLY);
         this.fileChooser.setToolTipText("Only direcory is selectable.");
         int returnVal = fileChooser.showOpenDialog(this);
         if (returnVal == JFileChooser.APPROVE_OPTION) {
             File file = fileChooser.getSelectedFile();
-            // What to do with the file, e.g. display it in a TextArea
-            //textarea.read( new FileReader( file.getAbsolutePath() ), null );
-            absolute_path = file.getAbsolutePath();
-            Set<String> fileSet = new HashSet<>();
-            String[] splitted_filename;
-            String ext;
-            String full_filepath;
-            Vector<String> fileVector = new Vector();
-            DefaultListModel listModel = new DefaultListModel();
-            try (
-                    DirectoryStream<Path> stream = Files.newDirectoryStream(Paths.get(absolute_path))) {
-                    for (Path path : stream) {
-                        if (!Files.isDirectory(path)) {
-                            splitted_filename = path.getFileName().toString().split("\\.");                            
-                            if (splitted_filename.length == 2) {
-                                ext = splitted_filename[1].trim();
-                                if (ext.compareToIgnoreCase("jpg") == 0 || ext.compareToIgnoreCase("jpeg") == 0) {
-                                    full_filepath = Path.of(absolute_path, path.getFileName().toString()).toString();
-                                    fileSet.add(full_filepath);
-                                    fileVector.add(full_filepath);
-                                }
-                            }
-                        }
-                    }
-                    this.jList4ImageNames.setListData(fileVector);
-                    this.AbsolutePathjTextField.setText(absolute_path);
-            } catch (IOException ex) {
-                Logger.getLogger(ExifGui2.class.getName()).log(Level.SEVERE, null, ex);
-            }
-        } else {
-            System.out.println("File access cancelled by user.");
-        }                
+            this.handlingNewPathSelected(file);
+        }
     }//GEN-LAST:event_jMenuItem1ActionPerformed
 
     private void ExitjButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ExitjButtonActionPerformed
@@ -437,28 +511,70 @@ public class ExifGui2 extends javax.swing.JFrame {
     }//GEN-LAST:event_CanceljButtonActionPerformed
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
-        List <String> selected = this.jList4SelectedImageNames.getSelectedValuesList();
+        List <String> selected = this.SelectedImageNamesjList.getSelectedValuesList();
         ListIterator<String> li = selected.listIterator();
         String path;
         while(li.hasNext()) {
             path = li.next();
             this.allSelectedImagePath.remove(path);
         }
-        this.jList4SelectedImageNames.setListData(this.allSelectedImagePath);       
+        this.SelectedImageNamesjList.setListData(this.allSelectedImagePath);       
+        this.checkApplyIsExpectable();
     }//GEN-LAST:event_jButton1ActionPerformed
 
-    public void LocadLocationList() {
-        String filename = "Locations.txt";
+    public void LoadLocationList() {
         try {
-            List<String> content = ExifUtil.readFileInList(filename);
+            List<String> content = OwnUtils.readFileInList(this.location_filename);
+            this.locations_original.clear();
+            this.locations_decoded.clear();
             Iterator<String> lociter = content.iterator();
-            String Location, locationName, Lat, Lon;
+            String original, Location, LocationName, Lat, Lon;
             while(lociter.hasNext()) {
-                String splitted[] = lociter.next().split("\\.");
-                Location =   splitted[0]
+                original = lociter.next();
+                this.locations_original.add(original);
+                String splitted[] = original.split("\\.");
+                Location = new String(Base64.getDecoder().decode(splitted[0]));
+                LocationName = new String(Base64.getDecoder().decode(splitted[1]));
+                Lat = new String(Base64.getDecoder().decode(splitted[2]));
+                Lon = new String(Base64.getDecoder().decode(splitted[3]));
+                this.locations_decoded.add("%s (%s [Lat: %s; Lon: %s])".formatted(Location, LocationName, Lat, Lon));
             }
+            this.LocationjList.setListData(this.locations_decoded);
+            this.LocationjList.setSelectedIndex(-1);
+            this.DeleteLocationjButton.setEnabled(false);
         } catch (Exception e){
             e.printStackTrace();
+        }
+    }
+
+    public void LoadUserCommentsList() {
+        try {
+            List<String> content = OwnUtils.readFileInList(this.comment_filename);
+            this.usercomments_decoded.clear();
+            this.usercomments_original.clear();
+            Iterator<String> commentiter = content.iterator();
+            String Comment;
+            String Original;
+            while(commentiter.hasNext()) {
+                Original = commentiter.next();
+                Comment = new String(Base64.getDecoder().decode(Original));
+                this.usercomments_original.add(Original);
+                this.usercomments_decoded.add(Comment);
+            }
+            this.UserCommentsjList.setListData(this.usercomments_decoded);
+            this.UserCommentsjList.setSelectedIndex(-1);
+            this.DeleteCommentjButton.setEnabled(false);
+        } catch (Exception e){
+            e.printStackTrace();
+        }
+    }
+
+    private void checkApplyIsExpectable() {
+        if (this.allSelectedImagePath.size() > 0 && (this.LocationjList.getSelectedIndex() > -1 ||
+                this.UserCommentsjList.getSelectedIndex() > -1)) {
+            this.AppendPlaceToSelectedjButton.setEnabled(true);
+        } else {
+            this.AppendPlaceToSelectedjButton.setEnabled(false);
         }
     }
     
@@ -472,18 +588,19 @@ public class ExifGui2 extends javax.swing.JFrame {
                 this.allSelectedImagePath.add(path);
             }
         }
-        this.jList4SelectedImageNames.setListData(this.allSelectedImagePath);
+        this.SelectedImageNamesjList.setListData(this.allSelectedImagePath);
+        this.checkApplyIsExpectable();
     }//GEN-LAST:event_jButton2ActionPerformed
 
     private void changeselectedAndShowImage() {
-        int index = this.jList4SelectedImageNames.getSelectedIndex();
+        int index = this.SelectedImageNamesjList.getSelectedIndex();
         if (!this.allSelectedImagePath.isEmpty() && index > -1) {
             String path = this.allSelectedImagePath.get(index);
             File file = new File(path);
             try {
                 this.actualImage = ImageIO.read(file);
                 if (this.actualImage != null) {
-                    this.currentMetaData = ExifUtil.readExifdataHashMap(file);
+                    this.currentMetaData = OwnUtils.readExifdataHashMap(file);
                     Iterator <ImageMetadataItem> entry = this.currentMetaData.iterator();
                     Vector<String> newListitems = new Vector();
                     while (entry.hasNext()) {
@@ -519,7 +636,7 @@ public class ExifGui2 extends javax.swing.JFrame {
         } else {
             this.selectedImageIndex = newvalue;
         }
-        this.jList4SelectedImageNames.setSelectedIndex(this.selectedImageIndex);
+        this.SelectedImageNamesjList.setSelectedIndex(this.selectedImageIndex);
         this.changeselectedAndShowImage();
     }
     
@@ -531,9 +648,10 @@ public class ExifGui2 extends javax.swing.JFrame {
         this.stepSelectedImage(1);
     }//GEN-LAST:event_jButtonAppendPlaceToSelected2ActionPerformed
 
-    private void jList4SelectedImageNamesValueChanged(javax.swing.event.ListSelectionEvent evt) {//GEN-FIRST:event_jList4SelectedImageNamesValueChanged
+    private void SelectedImageNamesjListValueChanged(javax.swing.event.ListSelectionEvent evt) {//GEN-FIRST:event_SelectedImageNamesjListValueChanged
         this.changeselectedAndShowImage();
-    }//GEN-LAST:event_jList4SelectedImageNamesValueChanged
+        this.checkApplyIsExpectable();
+    }//GEN-LAST:event_SelectedImageNamesjListValueChanged
 
     private void Canvas4ImageComponentResized(java.awt.event.ComponentEvent evt) {//GEN-FIRST:event_Canvas4ImageComponentResized
         
@@ -544,8 +662,71 @@ public class ExifGui2 extends javax.swing.JFrame {
     }//GEN-LAST:event_jMenuBar1ComponentResized
 
     private void jButtonAddNewPlace2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonAddNewPlace2ActionPerformed
-        // TODO add your handling code here:
+        AddNewUserComment usercommentframe = new AddNewUserComment(this);
+        usercommentframe.pack();
+        usercommentframe.setVisible(true);
+//        this.LoadUserCommentsList();        
     }//GEN-LAST:event_jButtonAddNewPlace2ActionPerformed
+
+    private void LocationjListValueChanged(javax.swing.event.ListSelectionEvent evt) {//GEN-FIRST:event_LocationjListValueChanged
+        this.DeleteLocationjButton.setEnabled(true);        // TODO add your handling code here:
+        this.checkApplyIsExpectable();
+    }//GEN-LAST:event_LocationjListValueChanged
+
+    private void UserCommentsjListValueChanged(javax.swing.event.ListSelectionEvent evt) {//GEN-FIRST:event_UserCommentsjListValueChanged
+        this.DeleteCommentjButton.setEnabled(true);
+        this.checkApplyIsExpectable();
+    }//GEN-LAST:event_UserCommentsjListValueChanged
+
+    private void DeleteLocationjButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_DeleteLocationjButtonActionPerformed
+        int selected = this.LocationjList.getSelectedIndex();
+        this.locations_original.remove(selected);
+        OwnUtils.saveListVector(this.location_filename, this.locations_original);        
+        this.LoadLocationList();
+    }//GEN-LAST:event_DeleteLocationjButtonActionPerformed
+
+    private void LocationjListMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_LocationjListMouseClicked
+        if (this.locationselectionindex == this.LocationjList.getSelectedIndex()) {
+            this.LocationjList.clearSelection();
+            this.locationselectionindex = -1;
+            this.DeleteLocationjButton.setEnabled(false);
+        } else {
+            this.locationselectionindex = this.LocationjList.getSelectedIndex();
+        }
+    }//GEN-LAST:event_LocationjListMouseClicked
+
+    private void LocationjListMouseReleased(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_LocationjListMouseReleased
+
+    }//GEN-LAST:event_LocationjListMouseReleased
+
+    private void UserCommentsjListMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_UserCommentsjListMouseClicked
+        if (this.commentselectionindex == this.UserCommentsjList.getSelectedIndex()) {
+            this.UserCommentsjList.clearSelection();
+            this.commentselectionindex = -1;
+            this.DeleteCommentjButton.setEnabled(false);
+        } else {
+            this.commentselectionindex = this.UserCommentsjList.getSelectedIndex();
+        }        // TODO add your handling code here:
+    }//GEN-LAST:event_UserCommentsjListMouseClicked
+
+    private void DeleteCommentjButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_DeleteCommentjButtonActionPerformed
+        int selected = this.UserCommentsjList.getSelectedIndex();
+        this.usercomments_original.remove(selected);
+        OwnUtils.saveListVector(this.comment_filename, this.usercomments_original);
+        this.LoadUserCommentsList();
+    }//GEN-LAST:event_DeleteCommentjButtonActionPerformed
+
+    private void AppendPlaceToSelectedjButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_AppendPlaceToSelectedjButtonActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_AppendPlaceToSelectedjButtonActionPerformed
+
+    private void AbsolutePathjTextFieldKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_AbsolutePathjTextFieldKeyReleased
+        String currenttext = this.AbsolutePathjTextField.getText();
+        if (OwnUtils.DirectoryPathCheck(currenttext)) {
+            File file = new File(currenttext);
+            this.handlingNewPathSelected(file);            
+        }
+    }//GEN-LAST:event_AbsolutePathjTextFieldKeyReleased
 
     /**
      * @param args the command line arguments
@@ -584,17 +765,23 @@ public class ExifGui2 extends javax.swing.JFrame {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JTextField AbsolutePathjTextField;
+    private javax.swing.JButton AppendPlaceToSelectedjButton;
     private javax.swing.JButton CanceljButton;
     private java.awt.Canvas Canvas4Image;
+    private javax.swing.JButton DeleteCommentjButton;
+    private javax.swing.JButton DeleteLocationjButton;
     private javax.swing.JDialog ExitDialog;
     private javax.swing.JButton ExitjButton;
     private javax.swing.JList<String> ImageExifsjList;
+    private javax.swing.JList<String> LocationjList;
+    private javax.swing.JCheckBox OverwriteExistingExifInformationCheckBox;
+    private javax.swing.JList<String> SelectedImageNamesjList;
+    private javax.swing.JList<String> UserCommentsjList;
     private javax.swing.JFileChooser fileChooser;
     private javax.swing.JButton jButton1;
     private javax.swing.JButton jButton2;
     private javax.swing.JButton jButtonAddNewPlace1;
     private javax.swing.JButton jButtonAddNewPlace2;
-    private javax.swing.JButton jButtonAppendPlaceToSelected;
     private javax.swing.JButton jButtonAppendPlaceToSelected1;
     private javax.swing.JButton jButtonAppendPlaceToSelected2;
     private javax.swing.JLabel jLabel1;
@@ -603,9 +790,6 @@ public class ExifGui2 extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
     private javax.swing.JList<String> jList4ImageNames;
-    private javax.swing.JList<String> jList4Places;
-    private javax.swing.JList<String> jList4Places1;
-    private javax.swing.JList<String> jList4SelectedImageNames;
     private javax.swing.JMenu jMenu1;
     private javax.swing.JMenuBar jMenuBar1;
     private javax.swing.JMenuItem jMenuItem1;
@@ -625,6 +809,12 @@ public class ExifGui2 extends javax.swing.JFrame {
     private BufferedImage actualImage;    
     private int selectedImageIndex;
     private List<ImageMetadataItem> currentMetaData;
-    private Vector<String> locations_encoded;
-    private Vector<String> usercomments_encoded;
+    private Vector<String> locations_original;
+    private Vector<String> locations_decoded;
+    private Vector<String> usercomments_original;
+    private Vector<String> usercomments_decoded;
+    public final String location_filename;
+    public final String comment_filename;
+    private int locationselectionindex;
+    private int commentselectionindex;
 }

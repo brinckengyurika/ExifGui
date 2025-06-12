@@ -30,10 +30,11 @@ public class AddNewLocation extends javax.swing.JFrame {
     /**
      * Creates new form AddNewLocation
      */
-    public AddNewLocation() {
+    public AddNewLocation(ExifGui2 parent) {
         initComponents();
         this.response = new Vector();
         this.SavedjLabel.setText("____");
+        this.parent = parent;
     }
 
     /**
@@ -210,15 +211,15 @@ public class AddNewLocation extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void SavejButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_SavejButtonActionPerformed
-        String filename = "Locations.txt";
         String nameb64, locationb64, latb64, lonb64;
         nameb64 = Base64.getEncoder().encodeToString(this.NameTextField.getText().getBytes());
         locationb64 = Base64.getEncoder().encodeToString(this.LocationTextField.getText().getBytes());
         latb64 = Base64.getEncoder().encodeToString(this.LattitudeTextField.getText().getBytes());
         lonb64 = Base64.getEncoder().encodeToString(this.LongitudeTextField.getText().getBytes());
         String savestring = nameb64 + "." + locationb64 + "." + latb64 + "." + lonb64 + "." + System.lineSeparator();
-        ExifUtil.appendStrToFile(filename, savestring);
+        OwnUtils.appendStrToFile(this.parent.location_filename, savestring);
         this.SavedjLabel.setText("Saved");
+        this.parent.LoadLocationList();
     }//GEN-LAST:event_SavejButtonActionPerformed
 
     private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
@@ -232,7 +233,7 @@ public class AddNewLocation extends javax.swing.JFrame {
             if (!location.isEmpty()) {
                 this.response.clear();
                 this.SavedjLabel.setText("____");
-                Vector<JsonNode> response = ExifUtil.AskAboutTheLatLOnTheOpenstreetmap(location);
+                Vector<JsonNode> response = OwnUtils.AskAboutTheLatLOnTheOpenstreetmap(location);
                 Vector<String> elements = new Vector();
 
                 Iterator<JsonNode> iter = response.iterator();
@@ -297,8 +298,8 @@ public class AddNewLocation extends javax.swing.JFrame {
         if( (!this.NameTextField.getText().trim().isEmpty()) &&
             (!this.LattitudeTextField.getText().trim().isEmpty()) &&
             (!this.LongitudeTextField.getText().trim().isEmpty())) {
-                if (ExifUtil.IsDouble(this.LattitudeTextField.getText().trim()) && 
-                    ExifUtil.IsDouble(this.LongitudeTextField.getText().trim())) {
+                if (OwnUtils.IsDouble(this.LattitudeTextField.getText().trim()) && 
+                    OwnUtils.IsDouble(this.LongitudeTextField.getText().trim())) {
                     this.SavejButton.setEnabled(true);
                     return;
                 }
@@ -331,4 +332,5 @@ public class AddNewLocation extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel4;
     // End of variables declaration//GEN-END:variables
     Vector<JsonNode> response;
+    ExifGui2 parent;
 }

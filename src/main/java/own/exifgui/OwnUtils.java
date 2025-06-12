@@ -63,9 +63,9 @@ import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
 
-
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.nio.file.Path;
 import java.nio.charset.StandardCharsets;
 
 import java.io.FileNotFoundException;
@@ -76,6 +76,7 @@ import java.util.ArrayList;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.nio.file.InvalidPathException;
 import java.util.Collections;
 import java.util.Vector;
 
@@ -84,7 +85,23 @@ import java.util.Vector;
  *
  * @author satch
  */
-public class ExifUtil {
+public class OwnUtils {
+
+    public static boolean DirectoryPathCheck(String directorypath) {
+        try {
+            Path path = Paths.get(directorypath);
+            if (Files.exists(path)) {
+                if (Files.isRegularFile(path)) {
+                    return false;
+                } else if (Files.isDirectory(path)) {
+                    return true;
+                }
+            }
+        } catch (InvalidPathException e) {
+            return false; 
+        }
+        return false;
+    }
 
     public static boolean IsDouble(String s) {
         try {
@@ -309,6 +326,19 @@ public class ExifUtil {
             System.out.println("exception occurred" + e);
         }
     }
+    
+    public static void saveListVector(String fileName, Vector data) {
+        try {
+            BufferedWriter out = new BufferedWriter(new FileWriter(fileName, false));
+            Iterator <String> iter = data.iterator();
+            while(iter.hasNext()) {
+                out.write(iter.next()+System.lineSeparator());
+            }
+            out.close();
+        } catch (IOException e) {
+            System.out.println("exception occurred" + e);
+        }
+    }    
 
     public static Vector<JsonNode> AskAboutTheLatLOnTheOpenstreetmap(String location)  throws IOException {
         //"https://nominatim.openstreetmap.org/search?q=Budapest+Kossuth+utca+12&format=jsonv2"  

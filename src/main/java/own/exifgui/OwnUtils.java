@@ -79,6 +79,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.nio.file.InvalidPathException;
 import java.util.Collections;
 import java.util.Vector;
+import org.apache.commons.imaging.formats.tiff.constants.TiffConstants;
+import org.apache.commons.imaging.formats.tiff.write.TiffOutputField;
 
 
 /**
@@ -224,40 +226,44 @@ public class OwnUtils {
             System.out.println(tagInfo.name + ": " + field.getValueDescription());
         }
     }
-
-    public void changeExifMetadata(final File jpegImageFile, final File dst) throws IOException, ImagingException, ImagingException {
-        try (FileOutputStream fos = new FileOutputStream(dst); OutputStream os = new BufferedOutputStream(fos)) {
+/*
+    public static void changeExifMetadata(final File jpegImageFile, String usercomment, LatLonObj latlon, boolean overwrite) throws IOException, ImagingException, ImagingException {
+//        String tempdir = System.getProperty("java.io.tmpdir");
+        File temporary_file = File.createTempFile("jpeg","Exif");
+        System.out.println(temporary_file.getPath());
+        try (FileOutputStream fos = new FileOutputStream(temporary_file); OutputStream os = new BufferedOutputStream(fos)) {
             TiffOutputSet outputSet = null;
             final ImageMetadata metadata = Imaging.getMetadata(jpegImageFile);
             final JpegImageMetadata jpegMetadata = (JpegImageMetadata) metadata;
-            if (null != jpegMetadata) {
+            if (jpegMetadata != null) {
                 final TiffImageMetadata exif = jpegMetadata.getExif();
-                if (null != exif) {
+                if (exif != null) {
                     outputSet = exif.getOutputSet();
                 }
             }
-            if (null == outputSet) {
+            if (outputSet != null) {
                 outputSet = new TiffOutputSet();
             }
             final TiffOutputDirectory exifDirectory = outputSet.getOrCreateExifDirectory();
-            exifDirectory.removeField(ExifTagConstants.EXIF_TAG_APERTURE_VALUE);
-            exifDirectory.add(ExifTagConstants.EXIF_TAG_APERTURE_VALUE, new RationalNumber(3, 10));
-            final double longitude = -74.0; // 74 degrees W (in Degrees East)
-            final double latitude = 40 + 43 / 60.0; // 40 degrees N (in Degrees North)
 
-            outputSet.setGpsInDegrees(longitude, latitude);
-
+            byte[] comment = usercomment.getBytes("UnicodeLittle");
+            TiffOutputField exif_comment = new TiffOutputField(TiffConstants.EXIF_TAG_USER_COMMENT, TiffFieldTypeConstants.FIELD_TYPE_UNDEFINED, comment.length, comment);
+            exifDirectory.add(exif_comment);
+            outputSet.setGpsInDegrees(Double.parseDouble(latlon.lon), Double.parseDouble(latlon.lat));
+            
             new ExifRewriter().updateExifMetadataLossless(jpegImageFile, os, outputSet);
+            temporary_file.renameTo(jpegImageFile);            
         }
+        //temporary_file.delete();
     }
-
-    public void removeExifMetadata(final File jpegImageFile, final File dst) throws IOException, ImagingException, ImagingException {
+*/
+    public static void removeExifMetadata(final File jpegImageFile, final File dst) throws IOException, ImagingException, ImagingException {
         try (FileOutputStream fos = new FileOutputStream(dst); OutputStream os = new BufferedOutputStream(fos)) {
             new ExifRewriter().removeExifMetadata(jpegImageFile, os);
         }
     }
 
-    public void removeExifTag(final File jpegImageFile, final File dst) throws IOException, ImagingException, ImagingException {
+    public static void removeExifTag(final File jpegImageFile, final File dst) throws IOException, ImagingException, ImagingException {
         try (FileOutputStream fos = new FileOutputStream(dst); OutputStream os = new BufferedOutputStream(fos)) {
             TiffOutputSet outputSet = null;
 
@@ -286,7 +292,7 @@ public class OwnUtils {
         }
     }
 
-    public void setExifGPSTag(String source_path, double longitude, double latitude) throws IOException, ImagingException, ImagingException {
+    public static void setExifGPSTag(String source_path, double longitude, double latitude) throws IOException, ImagingException, ImagingException {
         try {
             File jpegImageFile = new File(source_path);
             String temporary_destination_filename = "temporary.jpg";

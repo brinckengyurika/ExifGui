@@ -58,7 +58,7 @@ public class ExifGui2 extends javax.swing.JFrame {
         this.width = this.Canvas4Image.getWidth();
         this.selectedImageIndex = -1;
         this.currentMetaData = new ArrayList();
-        this.locations_original = new Vector();
+        this.locations_latlonobj = new Vector();
         this.usercomments_original = new Vector();
         this.locations_decoded = new Vector();
         this.usercomments_decoded = new Vector();
@@ -527,19 +527,16 @@ public class ExifGui2 extends javax.swing.JFrame {
     public void LoadLocationList() {
         try {
             List<String> content = OwnUtils.readFileInList(this.location_filename);
-            this.locations_original.clear();
+            this.locations_latlonobj.clear();
             this.locations_decoded.clear();
             Iterator<String> lociter = content.iterator();
-            String original, Location, LocationName, Lat, Lon;
+            LatLonObj llobj;
+            String original;
             while(lociter.hasNext()) {
                 original = lociter.next();
-                this.locations_original.add(original);
-                String splitted[] = original.split("\\.");
-                Location = new String(Base64.getDecoder().decode(splitted[0]));
-                LocationName = new String(Base64.getDecoder().decode(splitted[1]));
-                Lat = new String(Base64.getDecoder().decode(splitted[2]));
-                Lon = new String(Base64.getDecoder().decode(splitted[3]));
-                this.locations_decoded.add("%s (%s [Lat: %s; Lon: %s])".formatted(Location, LocationName, Lat, Lon));
+                llobj = new LatLonObj(original);
+                this.locations_latlonobj.add(llobj);                
+                this.locations_decoded.add("%s (%s [Lat: %s; Lon: %s])".formatted(llobj.getLocation(), llobj.getLocationName(), llobj.getLatS(), llobj.getLonS()));
             }
             this.LocationjList.setListData(this.locations_decoded);
             this.LocationjList.setSelectedIndex(-1);
@@ -682,8 +679,8 @@ public class ExifGui2 extends javax.swing.JFrame {
 
     private void DeleteLocationjButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_DeleteLocationjButtonActionPerformed
         int selected = this.LocationjList.getSelectedIndex();
-        this.locations_original.remove(selected);
-        OwnUtils.saveListVector(this.location_filename, this.locations_original);        
+        this.locations_latlonobj.remove(selected);
+        OwnUtils.saveListVector(this.location_filename, this.locations_latlonobj);        
         this.LoadLocationList();
     }//GEN-LAST:event_DeleteLocationjButtonActionPerformed
 
@@ -721,10 +718,21 @@ public class ExifGui2 extends javax.swing.JFrame {
     private void AppendPlaceToSelectedjButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_AppendPlaceToSelectedjButtonActionPerformed
         Iterator<String> imagepath = this.allSelectedImagePath.iterator();
         String path;
-
+        String comment = null;
+        LatLonObj latlonobj = null;
+        if (this.UserCommentsjList.getSelectedIndex() > -1) {
+            comment = this.UserCommentsjList.getSelectedValue();
+        }
+        if (this.LocationjList.getSelectedIndex() > -1) {
+            latlonobj = this.locations_latlonobj.get(this.LocationjList.getSelectedIndex());
+        }
         while (imagepath.hasNext()) {
             path = imagepath.next();
-//            OwnUtils.changeExifMetadata(jpegImageFile, dst);
+            try {
+                OwnUtils.changeExifMetadata(path, comment, latlonobj, this.OverwriteExistingExifInformationCheckBox.isSelected());
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
     }//GEN-LAST:event_AppendPlaceToSelectedjButtonActionPerformed
 
@@ -818,7 +826,7 @@ public class ExifGui2 extends javax.swing.JFrame {
     private BufferedImage actualImage;    
     private int selectedImageIndex;
     private List<ImageMetadataItem> currentMetaData;
-    private Vector<String> locations_original;
+    private Vector<LatLonObj> locations_latlonobj;
     private Vector<String> locations_decoded;
     private Vector<String> usercomments_original;
     private Vector<String> usercomments_decoded;

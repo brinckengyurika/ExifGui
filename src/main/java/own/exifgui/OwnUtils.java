@@ -77,6 +77,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.nio.file.InvalidPathException;
+import java.util.Base64;
 import java.util.Collections;
 import java.util.Vector;
 import org.apache.commons.imaging.formats.tiff.constants.TiffConstants;
@@ -105,6 +106,18 @@ public class OwnUtils {
         return false;
     }
 
+   
+    public static String encodetoBase64(String[] original) {
+        StringBuilder sb = new StringBuilder("");
+        for (int i = 0; i < original.length; ++i) {
+            sb.append(Base64.getEncoder().encodeToString(original[i].getBytes()));
+            if (original.length>0 || i < original.length-1) {
+                sb.append(".");
+            }
+        }
+        return sb.toString();
+    }
+    
     public static boolean IsDouble(String s) {
         try {
             Double.parseDouble(s);
@@ -292,7 +305,7 @@ public class OwnUtils {
         }
     }
 
-    public static void setExifGPSTag(String source_path, double longitude, double latitude) throws IOException, ImagingException, ImagingException {
+    public static void changeExifMetadata(String source_path, String comment, LatLonObj latlonobj, boolean overwrite) throws IOException, ImagingException, ImagingException {
         try {
             File jpegImageFile = new File(source_path);
             String temporary_destination_filename = "temporary.jpg";
@@ -309,9 +322,11 @@ public class OwnUtils {
                     if (null == outputSet) {
                         outputSet = new TiffOutputSet();
                     }
-                    final double lotude = longitude;
-                    final double latude = latitude;
-                    outputSet.setGpsInDegrees(lotude, latude);
+                    final TiffOutputDirectory exifDirectory = outputSet.getOrCreateExifDirectory();
+                    exifDirectory.removeField(ExifTagConstants.EXIF_TAG_USER_COMMENT);
+                    List <TiffOutputField> exiflist = exifDirectory.getFields();
+                    exifDirectory.add(ExifTagConstants.EXIF_TAG_USER_COMMENT, comment);
+                    outputSet.setGpsInDegrees(latlonobj.getLon(), latlonobj.getLat());
                     new ExifRewriter().updateExifMetadataLossless(jpegImageFile, os, outputSet);
                     File f1 = new File(temporary_destination_filename);
                     File f2 = new File(source_path);
@@ -336,9 +351,9 @@ public class OwnUtils {
     public static void saveListVector(String fileName, Vector data) {
         try {
             BufferedWriter out = new BufferedWriter(new FileWriter(fileName, false));
-            Iterator <String> iter = data.iterator();
+            Iterator <Object> iter = data.iterator();
             while(iter.hasNext()) {
-                out.write(iter.next()+System.lineSeparator());
+                out.write(iter.next().toString()+System.lineSeparator());
             }
             out.close();
         } catch (IOException e) {

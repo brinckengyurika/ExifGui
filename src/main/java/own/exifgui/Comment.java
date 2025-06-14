@@ -1,16 +1,13 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
+/**
+ *
+ * @author Gyorgy Brincken brinckengyurika@gmail.com
+ * https://github.com/brinckengyurika/ExifGui
+ * 
  */
 package own.exifgui;
 
 import java.util.Base64;
 
-
-/**
- *
- * @author satch
- */
 public class Comment {
     private String comment;
     

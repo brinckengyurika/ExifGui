@@ -1,6 +1,8 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JFrame.java to edit this template
+/**
+ *
+ * @author Gyorgy Brincken brinckengyurika@gmail.com
+ * https://github.com/brinckengyurika/ExifGui
+ * 
  */
 package own.exifgui;
 
@@ -223,7 +225,6 @@ public class AddNewLocation extends javax.swing.JFrame {
     }//GEN-LAST:event_SavejButtonActionPerformed
 
     private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
-        // TODO add your handling code here:
         this.setVisible(false);
     }//GEN-LAST:event_jButton3ActionPerformed
 

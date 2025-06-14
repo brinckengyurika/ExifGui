@@ -1,3 +1,9 @@
+/**
+ *
+ * @author Gyorgy Brincken brinckengyurika@gmail.com
+ * https://github.com/brinckengyurika/ExifGui
+ * 
+ */
 package own.exifgui;
 
 import java.io.BufferedOutputStream;
@@ -17,8 +23,6 @@ import java.io.File;
 import java.io.FileWriter;
 import org.apache.commons.imaging.ImagingException;
 import org.apache.commons.imaging.common.ImageMetadata.ImageMetadataItem;
-import org.apache.commons.imaging.formats.tiff.TiffField;
-import org.apache.commons.imaging.formats.tiff.taginfos.TagInfo;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -76,8 +80,7 @@ public class OwnUtils {
         return true;
     }
 
-    public static List<String> readFileInList(String fileName)
-    {
+    public static List<String> readFileInList(String fileName) {
         List<String> lines = Collections.emptyList();
       	try {
             lines = Files.readAllLines(
@@ -101,16 +104,7 @@ public class OwnUtils {
         return items;
     }
 
-    private static void printTagValue(final JpegImageMetadata jpegMetadata, final TagInfo tagInfo) {
-        final TiffField field = jpegMetadata.findExifValueWithExactMatch(tagInfo);
-        if (field == null) {
-            System.out.println(tagInfo.name + ": " + "Not Found.");
-        } else {
-            System.out.println(tagInfo.name + ": " + field.getValueDescription());
-        }
-    }
-
-    public static void changeExifMetadata(String source_path, String comment, LatLonObj latlonobj, boolean overwrite) throws IOException, ImagingException, ImagingException {
+    public static void changeExifMetadata(String source_path, String comment, LatLonObj latlonobj, boolean overwrite) throws ImagingException, ImagingException {
         try {
             File jpegImageFile = new File(source_path);
             String temporary_destination_filename = "temporary.jpg";
@@ -138,7 +132,7 @@ public class OwnUtils {
                     f1.renameTo(f2);
                 }
             }
-        } catch (Exception e) {
+        } catch (IOException e) {
             e.printStackTrace();
         }
     }
@@ -162,7 +156,7 @@ public class OwnUtils {
         }
     }    
 
-    public static Vector<JsonNode> AskAboutTheLatLOnTheOpenstreetmap(String location)  throws IOException {
+    public static Vector<JsonNode> AskAboutTheLatLOnTheOpenstreetmap(String location) {
         Vector <JsonNode> ret = new Vector();
         try {
             String surl = "https://nominatim.openstreetmap.org/search";
@@ -189,7 +183,7 @@ public class OwnUtils {
                     ret.add(node.next());
                 }
             }
-        } catch (Exception e) {
+        } catch (IOException e) {
             e.printStackTrace();
         }            
         return ret;

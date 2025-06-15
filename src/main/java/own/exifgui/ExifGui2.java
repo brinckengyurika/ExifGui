@@ -38,6 +38,7 @@ public final class ExifGui2 extends javax.swing.JFrame {
         initComponents();
         this.location_filename = "Locations.txt";
         this.comment_filename = "UserComments.txt";
+        this.actualImagePath = new Vector();
         this.allSelectedImagePath = new Vector();
         this.Canvas4Image.createBufferStrategy(1);
         this.bufferStrategy = this.Canvas4Image.getBufferStrategy();
@@ -92,6 +93,7 @@ public final class ExifGui2 extends javax.swing.JFrame {
         DeleteCommentjButton = new javax.swing.JButton();
         OverwriteExistingExifInformationCheckBox = new javax.swing.JCheckBox();
         jProgressBar = new javax.swing.JProgressBar();
+        jButton3 = new javax.swing.JButton();
         jMenuBar1 = new javax.swing.JMenuBar();
         jMenu1 = new javax.swing.JMenu();
         jMenuItem1 = new javax.swing.JMenuItem();
@@ -276,6 +278,13 @@ public final class ExifGui2 extends javax.swing.JFrame {
         OverwriteExistingExifInformationCheckBox.setSelected(true);
         OverwriteExistingExifInformationCheckBox.setText("Overwrite the existing exif records");
 
+        jButton3.setText("Add all");
+        jButton3.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton3ActionPerformed(evt);
+            }
+        });
+
         jMenuBar1.addComponentListener(new java.awt.event.ComponentAdapter() {
             public void componentResized(java.awt.event.ComponentEvent evt) {
                 jMenuBar1ComponentResized(evt);
@@ -316,12 +325,14 @@ public final class ExifGui2 extends javax.swing.JFrame {
                         .addComponent(jButtonAppendPlaceToSelected1)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(jButtonAppendPlaceToSelected2)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 94, Short.MAX_VALUE)
                         .addComponent(jButton1))
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                         .addComponent(jLabel5)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(jButton2))
+                        .addComponent(jButton2)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jButton3))
                     .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 385, Short.MAX_VALUE)
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(jLabel4)
@@ -388,7 +399,8 @@ public final class ExifGui2 extends javax.swing.JFrame {
                         .addComponent(jButton2)
                         .addComponent(jLabel5)
                         .addComponent(jLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, 19, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addComponent(jLabel3, javax.swing.GroupLayout.PREFERRED_SIZE, 19, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addComponent(jLabel3, javax.swing.GroupLayout.PREFERRED_SIZE, 19, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(jButton3))
                     .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                         .addComponent(jButtonAddNewPlace2)
                         .addComponent(DeleteCommentjButton)))
@@ -436,6 +448,7 @@ public final class ExifGui2 extends javax.swing.JFrame {
         String ext;
         String full_filepath;
         Vector<String> fileVector = new Vector();
+        this.actualImagePath.clear();
         try (
                 DirectoryStream<Path> stream = Files.newDirectoryStream(Paths.get(absolute_path))) {
                 for (Path path : stream) {
@@ -446,6 +459,7 @@ public final class ExifGui2 extends javax.swing.JFrame {
                             if (ext.compareToIgnoreCase("jpg") == 0 || ext.compareToIgnoreCase("jpeg") == 0) {
                                 full_filepath = Path.of(absolute_path, path.getFileName().toString()).toString();
                                 fileVector.add(full_filepath);
+                                this.actualImagePath.add(full_filepath);
                             }
                         }
                     }
@@ -724,6 +738,20 @@ public final class ExifGui2 extends javax.swing.JFrame {
         this.openExitDialog();
     }//GEN-LAST:event_formWindowClosing
 
+    private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
+        Iterator <String> iter = this.actualImagePath.iterator();
+        String path;
+        while (iter.hasNext()) {
+            path = iter.next();
+            if (!this.allSelectedImagePath.contains(path)) {
+                this.allSelectedImagePath.add(path);
+            }
+           
+        }
+        this.SelectedImageNamesjList.setListData(this.allSelectedImagePath);
+        this.checkApplyIsExpectable();        
+    }//GEN-LAST:event_jButton3ActionPerformed
+
     /**
      * @param args the command line arguments
      */
@@ -752,6 +780,7 @@ public final class ExifGui2 extends javax.swing.JFrame {
     private javax.swing.JFileChooser fileChooser;
     private javax.swing.JButton jButton1;
     private javax.swing.JButton jButton2;
+    private javax.swing.JButton jButton3;
     private javax.swing.JButton jButtonAddNewPlace1;
     private javax.swing.JButton jButtonAddNewPlace2;
     private javax.swing.JButton jButtonAppendPlaceToSelected1;
@@ -775,6 +804,7 @@ public final class ExifGui2 extends javax.swing.JFrame {
     private javax.swing.JPopupMenu.Separator jSeparator1;
     // End of variables declaration//GEN-END:variables
 
+    private final Vector <String> actualImagePath;
     private final Vector <String> allSelectedImagePath;
     private final BufferStrategy bufferStrategy;
     private final Graphics graphics;

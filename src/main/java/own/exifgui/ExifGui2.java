@@ -135,10 +135,15 @@ public final class ExifGui2 extends javax.swing.JFrame {
                 .addGap(50, 50, 50))
         );
 
-        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setDefaultCloseOperation(javax.swing.WindowConstants.DO_NOTHING_ON_CLOSE);
         setMaximumSize(null);
         setMinimumSize(null);
         setResizable(false);
+        addWindowListener(new java.awt.event.WindowAdapter() {
+            public void windowClosing(java.awt.event.WindowEvent evt) {
+                formWindowClosing(evt);
+            }
+        });
 
         LocationjList.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
         LocationjList.addMouseListener(new java.awt.event.MouseAdapter() {
@@ -154,6 +159,7 @@ public final class ExifGui2 extends javax.swing.JFrame {
         jScrollPane2.setViewportView(LocationjList);
 
         AppendPlaceToSelectedjButton.setText("Append");
+        AppendPlaceToSelectedjButton.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(255, 0, 0), 2));
         AppendPlaceToSelectedjButton.setEnabled(false);
         AppendPlaceToSelectedjButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -237,6 +243,11 @@ public final class ExifGui2 extends javax.swing.JFrame {
         });
 
         jLabel4.setText("Directory:");
+        jLabel4.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                jLabel4MouseClicked(evt);
+            }
+        });
 
         AbsolutePathjTextField.addKeyListener(new java.awt.event.KeyAdapter() {
             public void keyReleased(java.awt.event.KeyEvent evt) {
@@ -319,12 +330,14 @@ public final class ExifGui2 extends javax.swing.JFrame {
                     .addComponent(jScrollPane4))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                        .addComponent(AppendPlaceToSelectedjButton)
-                        .addComponent(Canvas4Image, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 600, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(6, 6, 6)
+                        .addComponent(OverwriteExistingExifInformationCheckBox)
+                        .addGap(133, 133, 133)
+                        .addComponent(AppendPlaceToSelectedjButton))
+                    .addComponent(Canvas4Image, javax.swing.GroupLayout.PREFERRED_SIZE, 600, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 600, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jLabel2)
-                    .addComponent(OverwriteExistingExifInformationCheckBox, javax.swing.GroupLayout.Alignment.TRAILING))
+                    .addComponent(jLabel2))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
@@ -406,12 +419,15 @@ public final class ExifGui2 extends javax.swing.JFrame {
         this.LoadLocationList();
     }//GEN-LAST:event_jButtonAddNewPlace1ActionPerformed
 
-    private void jMenuItem2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem2ActionPerformed
-        // TODO add your handling code here:
+    private void openExitDialog() {
         int code = JOptionPane.showConfirmDialog(null, "Exit?", "Select", JOptionPane.YES_NO_OPTION);
         if (code == 0) {
             System.exit(0);
         }
+    }
+    
+    private void jMenuItem2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem2ActionPerformed
+        this.openExitDialog();
     }//GEN-LAST:event_jMenuItem2ActionPerformed
 
     private void handlingNewPathSelected(File file) {
@@ -441,7 +457,7 @@ public final class ExifGui2 extends javax.swing.JFrame {
         }
     }
     
-    private void jMenuItem1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem1ActionPerformed
+    private void openFileChooser() {
         fileChooser.setFileSelectionMode( JFileChooser.DIRECTORIES_ONLY);
         this.fileChooser.setToolTipText("Only direcory is selectable.");
         int returnVal = fileChooser.showOpenDialog(this);
@@ -449,6 +465,10 @@ public final class ExifGui2 extends javax.swing.JFrame {
             File file = fileChooser.getSelectedFile();
             this.handlingNewPathSelected(file);
         }
+    }
+    
+    private void jMenuItem1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem1ActionPerformed
+        this.openFileChooser();
     }//GEN-LAST:event_jMenuItem1ActionPerformed
 
     private void ExitjButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ExitjButtonActionPerformed
@@ -562,7 +582,15 @@ public final class ExifGui2 extends javax.swing.JFrame {
     }
     
     private void PaintToCanvas() {
-        this.graphics.drawImage(this.actualImage, 0, 0, this.Canvas4Image.getWidth() , this.Canvas4Image.getHeight(),  this.Canvas4Image);
+        this.graphics.clearRect(0,0, this.Canvas4Image.getWidth(), this.Canvas4Image.getHeight());
+        if (this.actualImage != null) {
+            double canvas_x = (double) this.Canvas4Image.getWidth();
+            double canvas_y = (double) this.Canvas4Image.getHeight();
+            double img_x = (double) this.actualImage.getWidth();
+            double img_y = (double) this.actualImage.getHeight();
+            double ratio = Math.min(canvas_x/img_x, canvas_y/img_y);
+            this.graphics.drawImage(this.actualImage, 0, 0, (int) Math.round(ratio*img_x), (int)Math.round(ratio*img_y),  this.Canvas4Image);
+        }
     }
     
     private void stepSelectedImage(int direction) {
@@ -681,6 +709,14 @@ public final class ExifGui2 extends javax.swing.JFrame {
             this.handlingNewPathSelected(file);            
         }
     }//GEN-LAST:event_AbsolutePathjTextFieldKeyReleased
+
+    private void jLabel4MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel4MouseClicked
+        this.openFileChooser();
+    }//GEN-LAST:event_jLabel4MouseClicked
+
+    private void formWindowClosing(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowClosing
+        this.openExitDialog();
+    }//GEN-LAST:event_formWindowClosing
 
     /**
      * @param args the command line arguments

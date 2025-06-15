@@ -36,6 +36,7 @@ import java.util.List;
 import java.util.ArrayList;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.io.FileNotFoundException;
 import java.nio.file.InvalidPathException;
 import java.util.Base64;
 import java.util.Collections;
@@ -64,7 +65,7 @@ public class OwnUtils {
         StringBuilder sb = new StringBuilder("");
         for (int i = 0; i < original.length; ++i) {
             sb.append(Base64.getEncoder().encodeToString(original[i].getBytes()));
-            if (original.length>0 || i < original.length-1) {
+            if (i != original.length-1) {
                 sb.append(".");
             }
         }
@@ -104,36 +105,35 @@ public class OwnUtils {
         return items;
     }
 
-    public static void changeExifMetadata(String source_path, String comment, LatLonObj latlonobj, boolean overwrite) throws ImagingException, ImagingException {
+    public static void changeExifMetadata(String source_path, String comment, LatLonObj latlonobj, boolean overwrite) throws ImagingException, ImagingException, FileNotFoundException {
         try {
             File jpegImageFile = new File(source_path);
             String temporary_destination_filename = "temporary.jpg";
             File dst = new File(temporary_destination_filename);
-            final ImageMetadata metadata = Imaging.getMetadata(jpegImageFile);
-            final JpegImageMetadata jpegMetadata = (JpegImageMetadata) metadata;
-            if (null != jpegMetadata) {
-                try (FileOutputStream fos = new FileOutputStream(dst); OutputStream os = new BufferedOutputStream(fos)) {
-                    TiffOutputSet outputSet = null;
-                    final TiffImageMetadata exif = jpegMetadata.getExif();
-                    if (null != exif) {
-                        outputSet = exif.getOutputSet();
-                    }
-                    if (null == outputSet) {
-                        outputSet = new TiffOutputSet();
-                    }
-                    final TiffOutputDirectory exifDirectory = outputSet.getOrCreateExifDirectory();
-                    exifDirectory.removeField(ExifTagConstants.EXIF_TAG_USER_COMMENT);
-                    List <TiffOutputField> exiflist = exifDirectory.getFields();
-                    exifDirectory.add(ExifTagConstants.EXIF_TAG_USER_COMMENT, comment);
-                    outputSet.setGpsInDegrees(latlonobj.getLon(), latlonobj.getLat());
-                    new ExifRewriter().updateExifMetadataLossless(jpegImageFile, os, outputSet);
-                    File f1 = new File(temporary_destination_filename);
-                    File f2 = new File(source_path);
-                    f1.renameTo(f2);
+            ImageMetadata metadata = Imaging.getMetadata(jpegImageFile);
+            JpegImageMetadata jpegMetadata = (JpegImageMetadata) metadata;
+            TiffOutputSet outputSet = null;
+            FileOutputStream fos = new FileOutputStream(dst); 
+            OutputStream os = new BufferedOutputStream(fos);
+            if (jpegMetadata == null) {
+                outputSet = new TiffOutputSet();
+            } else {
+                TiffImageMetadata exif = jpegMetadata.getExif();
+                if (null != exif) {
+                    outputSet = exif.getOutputSet();
                 }
             }
-        } catch (IOException e) {
-            e.printStackTrace();
+            TiffOutputDirectory exifDirectory = outputSet.getOrCreateExifDirectory();
+            exifDirectory.removeField(ExifTagConstants.EXIF_TAG_USER_COMMENT);
+            List <TiffOutputField> exiflist = exifDirectory.getFields();
+            exifDirectory.add(ExifTagConstants.EXIF_TAG_USER_COMMENT, comment);
+            outputSet.setGpsInDegrees(latlonobj.getLon(), latlonobj.getLat());
+            new ExifRewriter().updateExifMetadataLossless(jpegImageFile, os, outputSet);
+            File f1 = new File(temporary_destination_filename);
+            File f2 = new File(source_path);
+            f1.renameTo(f2);
+        } catch (Exception e) {
+                e.printStackTrace();
         }
     }
 

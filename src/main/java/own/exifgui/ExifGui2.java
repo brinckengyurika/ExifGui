@@ -682,6 +682,8 @@ public final class ExifGui2 extends javax.swing.JFrame {
     }//GEN-LAST:event_DeleteCommentjButtonActionPerformed
 
     private void AppendPlaceToSelectedjButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_AppendPlaceToSelectedjButtonActionPerformed
+        int max = this.allSelectedImagePath.size();
+        this.jProgressBar.setMaximum(max);
         Iterator<String> imagepath = this.allSelectedImagePath.iterator();
         String path;
         String comment = null;
@@ -692,13 +694,17 @@ public final class ExifGui2 extends javax.swing.JFrame {
         if (this.LocationjList.getSelectedIndex() > -1) {
             latlonobj = this.locations_latlonobj.get(this.LocationjList.getSelectedIndex());
         }
+        int progress = 1;
         while (imagepath.hasNext()) {
             path = imagepath.next();
+            this.jProgressBar.setValue(progress);
+            this.jProgressBar.setToolTipText("Done: %d / %d (%s)".formatted(max, progress, path));
             try {
                 OwnUtils.changeExifMetadata(path, comment, latlonobj, this.OverwriteExistingExifInformationCheckBox.isSelected());
             } catch (Exception e) {
                 e.printStackTrace();
             }
+            ++progress;
         }
     }//GEN-LAST:event_AppendPlaceToSelectedjButtonActionPerformed
 

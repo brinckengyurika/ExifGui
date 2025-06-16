@@ -6,3 +6,14 @@
 - Save your own comments (for example: My wedding party, Wacations, Formula 1 race, etc....).
 - Select the related images in your filesystems.
 - Apply the seleted Location and Comments on the images.
+  - Location modifiers:
+    - Exactly - All image placed to same coordinate
+    - Circle - The images placed around the coordinate in circle
+    - Matrix - The images placed in grid
+
+
+If you find this tool helpful and would like to support its development, you can make a donation via PayPal:
+
+https://paypal.me/GyorgyBrincken
+
+Thank you for your support!

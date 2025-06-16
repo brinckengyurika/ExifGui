@@ -65,7 +65,7 @@ public final class ExifGui2 extends javax.swing.JFrame {
         ExitDialog = new javax.swing.JDialog();
         ExitjButton = new javax.swing.JButton();
         CanceljButton = new javax.swing.JButton();
-        jScrollPane2 = new javax.swing.JScrollPane();
+        jScrollPane = new javax.swing.JScrollPane();
         LocationjList = new javax.swing.JList<>();
         AppendPlaceToSelectedjButton = new javax.swing.JButton();
         jScrollPane3 = new javax.swing.JScrollPane();
@@ -94,11 +94,13 @@ public final class ExifGui2 extends javax.swing.JFrame {
         jButton3 = new javax.swing.JButton();
         LocationjComboBox = new javax.swing.JComboBox<>();
         StatusjTextField = new javax.swing.JTextField();
-        jMenuBar1 = new javax.swing.JMenuBar();
-        jMenu1 = new javax.swing.JMenu();
-        jMenuItem1 = new javax.swing.JMenuItem();
-        jSeparator1 = new javax.swing.JPopupMenu.Separator();
-        jMenuItem2 = new javax.swing.JMenuItem();
+        jMenuBar = new javax.swing.JMenuBar();
+        FilejMenu = new javax.swing.JMenu();
+        SelectDirectoryjMenuItem = new javax.swing.JMenuItem();
+        jSeparator = new javax.swing.JPopupMenu.Separator();
+        ExitjMenuItem = new javax.swing.JMenuItem();
+        AboutjMenu = new javax.swing.JMenu();
+        AboutjMenuItem = new javax.swing.JMenuItem();
 
         ExitjButton.setText("Exit");
         ExitjButton.addActionListener(new java.awt.event.ActionListener() {
@@ -159,7 +161,7 @@ public final class ExifGui2 extends javax.swing.JFrame {
                 LocationjListValueChanged(evt);
             }
         });
-        jScrollPane2.setViewportView(LocationjList);
+        jScrollPane.setViewportView(LocationjList);
 
         AppendPlaceToSelectedjButton.setText("Append the selected location and comment to the selected files");
         AppendPlaceToSelectedjButton.setEnabled(false);
@@ -284,34 +286,46 @@ public final class ExifGui2 extends javax.swing.JFrame {
 
         LocationjComboBox.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Exactly", "Circle", "Matrix" }));
 
-        jMenuBar1.addComponentListener(new java.awt.event.ComponentAdapter() {
+        jMenuBar.addComponentListener(new java.awt.event.ComponentAdapter() {
             public void componentResized(java.awt.event.ComponentEvent evt) {
-                jMenuBar1ComponentResized(evt);
+                jMenuBarComponentResized(evt);
             }
         });
 
-        jMenu1.setText("File");
+        FilejMenu.setText("File");
 
-        jMenuItem1.setText("Select directory");
-        jMenuItem1.addActionListener(new java.awt.event.ActionListener() {
+        SelectDirectoryjMenuItem.setText("Select directory");
+        SelectDirectoryjMenuItem.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jMenuItem1ActionPerformed(evt);
+                SelectDirectoryjMenuItemActionPerformed(evt);
             }
         });
-        jMenu1.add(jMenuItem1);
-        jMenu1.add(jSeparator1);
+        FilejMenu.add(SelectDirectoryjMenuItem);
+        FilejMenu.add(jSeparator);
 
-        jMenuItem2.setText("Exit");
-        jMenuItem2.addActionListener(new java.awt.event.ActionListener() {
+        ExitjMenuItem.setText("Exit");
+        ExitjMenuItem.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jMenuItem2ActionPerformed(evt);
+                ExitjMenuItemActionPerformed(evt);
             }
         });
-        jMenu1.add(jMenuItem2);
+        FilejMenu.add(ExitjMenuItem);
 
-        jMenuBar1.add(jMenu1);
+        jMenuBar.add(FilejMenu);
 
-        setJMenuBar(jMenuBar1);
+        AboutjMenu.setText("About");
+
+        AboutjMenuItem.setText("About");
+        AboutjMenuItem.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                AboutjMenuItemActionPerformed(evt);
+            }
+        });
+        AboutjMenu.add(AboutjMenuItem);
+
+        jMenuBar.add(AboutjMenu);
+
+        setJMenuBar(jMenuBar);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -347,7 +361,7 @@ public final class ExifGui2 extends javax.swing.JFrame {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
-                        .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 371, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(jScrollPane, javax.swing.GroupLayout.PREFERRED_SIZE, 371, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(5, 12, Short.MAX_VALUE))
                     .addGroup(layout.createSequentialGroup()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -384,7 +398,7 @@ public final class ExifGui2 extends javax.swing.JFrame {
                             .addComponent(DeleteLocationjButton)
                             .addComponent(LocationjComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 293, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addComponent(jScrollPane, javax.swing.GroupLayout.PREFERRED_SIZE, 293, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(AbsolutePathjTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -435,9 +449,9 @@ public final class ExifGui2 extends javax.swing.JFrame {
         }
     }
     
-    private void jMenuItem2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem2ActionPerformed
+    private void ExitjMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ExitjMenuItemActionPerformed
         this.openExitDialog();
-    }//GEN-LAST:event_jMenuItem2ActionPerformed
+    }//GEN-LAST:event_ExitjMenuItemActionPerformed
 
     private void handlingNewPathSelected(File file) {
         String absolute_path = file.getAbsolutePath();
@@ -478,9 +492,9 @@ public final class ExifGui2 extends javax.swing.JFrame {
         }
     }
     
-    private void jMenuItem1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem1ActionPerformed
+    private void SelectDirectoryjMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_SelectDirectoryjMenuItemActionPerformed
         this.openFileChooser();
-    }//GEN-LAST:event_jMenuItem1ActionPerformed
+    }//GEN-LAST:event_SelectDirectoryjMenuItemActionPerformed
 
     private void ExitjButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ExitjButtonActionPerformed
         System.exit(0);
@@ -638,9 +652,9 @@ public final class ExifGui2 extends javax.swing.JFrame {
         this.checkApplyIsExpectable();
     }//GEN-LAST:event_SelectedImageNamesjListValueChanged
 
-    private void jMenuBar1ComponentResized(java.awt.event.ComponentEvent evt) {//GEN-FIRST:event_jMenuBar1ComponentResized
+    private void jMenuBarComponentResized(java.awt.event.ComponentEvent evt) {//GEN-FIRST:event_jMenuBarComponentResized
         this.PaintToCanvas();
-    }//GEN-LAST:event_jMenuBar1ComponentResized
+    }//GEN-LAST:event_jMenuBarComponentResized
 
     private void jButtonAddNewPlace2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonAddNewPlace2ActionPerformed
         AddNewUserComment usercommentframe = new AddNewUserComment(this);
@@ -757,6 +771,12 @@ public final class ExifGui2 extends javax.swing.JFrame {
         this.checkApplyIsExpectable();        
     }//GEN-LAST:event_jButton3ActionPerformed
 
+    private void AboutjMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_AboutjMenuItemActionPerformed
+        About about = new About();
+        about.pack();
+        about.setVisible(true);
+    }//GEN-LAST:event_AboutjMenuItemActionPerformed
+
     /**
      * @param args the command line arguments
      */
@@ -769,6 +789,8 @@ public final class ExifGui2 extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JMenu AboutjMenu;
+    private javax.swing.JMenuItem AboutjMenuItem;
     private javax.swing.JTextField AbsolutePathjTextField;
     private javax.swing.JButton AppendPlaceToSelectedjButton;
     private javax.swing.JButton CanceljButton;
@@ -777,9 +799,12 @@ public final class ExifGui2 extends javax.swing.JFrame {
     private javax.swing.JButton DeleteLocationjButton;
     private javax.swing.JDialog ExitDialog;
     private javax.swing.JButton ExitjButton;
+    private javax.swing.JMenuItem ExitjMenuItem;
+    private javax.swing.JMenu FilejMenu;
     private javax.swing.JList<String> ImageExifsjList;
     private javax.swing.JComboBox<String> LocationjComboBox;
     private javax.swing.JList<String> LocationjList;
+    private javax.swing.JMenuItem SelectDirectoryjMenuItem;
     private javax.swing.JList<String> SelectedImageNamesjList;
     private javax.swing.JTextField StatusjTextField;
     private javax.swing.JList<String> UserCommentsjList;
@@ -797,16 +822,13 @@ public final class ExifGui2 extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
     private javax.swing.JList<String> jList4ImageNames;
-    private javax.swing.JMenu jMenu1;
-    private javax.swing.JMenuBar jMenuBar1;
-    private javax.swing.JMenuItem jMenuItem1;
-    private javax.swing.JMenuItem jMenuItem2;
+    private javax.swing.JMenuBar jMenuBar;
+    private javax.swing.JScrollPane jScrollPane;
     private javax.swing.JScrollPane jScrollPane1;
-    private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JScrollPane jScrollPane3;
     private javax.swing.JScrollPane jScrollPane4;
     private javax.swing.JScrollPane jScrollPane5;
-    private javax.swing.JPopupMenu.Separator jSeparator1;
+    private javax.swing.JPopupMenu.Separator jSeparator;
     // End of variables declaration//GEN-END:variables
 
     private final Vector <String> actualImagePath;

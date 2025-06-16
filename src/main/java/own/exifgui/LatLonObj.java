@@ -105,7 +105,7 @@ public class LatLonObj {
             ret.lat = Double.toString(newlat);
             ret.lon = Double.toString(newlon);
         }
-        System.out.println(ret.toCSV());
+        //System.out.println(ret.toCSV());
         return ret;
     }
     

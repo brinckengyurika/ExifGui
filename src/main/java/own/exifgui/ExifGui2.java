@@ -138,6 +138,7 @@ public final class ExifGui2 extends javax.swing.JFrame {
         );
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DO_NOTHING_ON_CLOSE);
+        setTitle("ExifGui2");
         setMaximumSize(null);
         setMinimumSize(null);
         setResizable(false);

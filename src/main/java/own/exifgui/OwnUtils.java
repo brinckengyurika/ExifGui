@@ -44,7 +44,11 @@ import java.util.Vector;
 import org.apache.commons.imaging.formats.tiff.write.TiffOutputField;
 
 public class OwnUtils {
-
+    public static int log2nlz( int bits ) {
+        if( bits == 0 )
+            return 0; // or throw exception
+        return 31 - Integer.numberOfLeadingZeros( bits );
+    }
     public static boolean DirectoryPathCheck(String directorypath) {
         try {
             Path path = Paths.get(directorypath);
@@ -104,8 +108,8 @@ public class OwnUtils {
         }
         return items;
     }
-
-    public static void changeExifMetadata(String source_path, String comment, LatLonObj latlonobj, boolean overwrite) throws ImagingException, ImagingException, FileNotFoundException {
+       
+    public static void changeExifMetadata(String source_path, String comment, LatLonObj latlonobj) throws ImagingException, ImagingException, FileNotFoundException {
         try {
             File jpegImageFile = new File(source_path);
             String temporary_destination_filename = "temporary.jpg";
@@ -124,10 +128,14 @@ public class OwnUtils {
                 }
             }
             TiffOutputDirectory exifDirectory = outputSet.getOrCreateExifDirectory();
-            exifDirectory.removeField(ExifTagConstants.EXIF_TAG_USER_COMMENT);
-            List <TiffOutputField> exiflist = exifDirectory.getFields();
-            exifDirectory.add(ExifTagConstants.EXIF_TAG_USER_COMMENT, comment);
-            outputSet.setGpsInDegrees(latlonobj.getLon(), latlonobj.getLat());
+            if (comment != null) {
+                exifDirectory.removeField(ExifTagConstants.EXIF_TAG_USER_COMMENT);
+                List <TiffOutputField> exiflist = exifDirectory.getFields();
+                exifDirectory.add(ExifTagConstants.EXIF_TAG_USER_COMMENT, comment);
+            }
+            if (latlonobj != null) {
+                outputSet.setGpsInDegrees(latlonobj.getLon(), latlonobj.getLat());
+            }
             new ExifRewriter().updateExifMetadataLossless(jpegImageFile, os, outputSet);
             File f1 = new File(temporary_destination_filename);
             File f2 = new File(source_path);

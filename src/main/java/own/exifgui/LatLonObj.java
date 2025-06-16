@@ -62,6 +62,10 @@ public class LatLonObj {
         return this.LocationName;
     }
     
+    public String toCSV(){
+        return "%s,%s".formatted(this.lat, this.lon);
+    }    
+    
     public String toUndexodedString(){
         return "%s [%s] Lat: %s \t Lon: %s".formatted(this.LocationName, this.Location, this.lat, this.lon);
     }    
@@ -85,7 +89,7 @@ public class LatLonObj {
             double newlat = ret.getLat() + lat_offset;
             double newlon = ret.getLon() + lon_offset;
             ret.lat = Double.toString(newlat);
-            ret.lon = Double.toHexString(newlon);
+            ret.lon = Double.toString(newlon);
         } else if ("Circle".equals(selected.toString())) {
             ++progress;
             int pow = OwnUtils.log2nlz(progress);
@@ -99,9 +103,9 @@ public class LatLonObj {
             double newlat = ret.getLat() + rel_lat;
             double newlon = ret.getLon() + rel_lon;
             ret.lat = Double.toString(newlat);
-            ret.lon = Double.toHexString(newlon);
+            ret.lon = Double.toString(newlon);
         }
-        System.out.println(ret.toUndexodedString());
+        System.out.println(ret.toCSV());
         return ret;
     }
     

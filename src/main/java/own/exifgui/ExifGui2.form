@@ -102,7 +102,7 @@
   </NonVisualComponents>
   <Properties>
     <Property name="defaultCloseOperation" type="int" value="0"/>
-    <Property name="title" type="java.lang.String" value="ExifGui2"/>
+    <Property name="title" type="java.lang.String" value="ExifGui"/>
     <Property name="maximumSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
       <Dimension value="null"/>
     </Property>

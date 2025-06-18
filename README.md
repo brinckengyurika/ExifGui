@@ -3,11 +3,12 @@
 ## Standalone runnable version: 
 - URL: https://github.com/brinckengyurika/ExifGui/blob/main/ExifGui-1.0.jar
 - Standalone staring the downladed application:
-  - Download from the jar version into one separated directory
+  - Download the jar version into one specified_directory
   - Run with this command:
-    'bash
-    java -jar ExifGui-1.0.jar
-    '
+    ```console
+    foo@bar:~$ cd specified_directory
+    foo@bar:~/specified_directory$ java -jar ExifGui-1.0.jar
+    ```
 
 ## Modify the Location and the User Comment Exif fields of group of images:
 ![Main window](Images/Main.png "Main window")
